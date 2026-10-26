@@ -264,7 +264,7 @@ footer .wrap{display:grid;gap:10px}
         </div>
         <div class="facts">
           <div><b>Miércoles</b><span>todas las semanas</span></div>
-          <div><b>18:00</b><span>hora Argentina</span></div>
+          <div><b>19:00</b><span>hora Argentina</span></div>
           <div><b>40 min</b><span>de clase</span></div>
         </div>
         <p class="local" id="localTime">En tu zona horaria: <b>calculando…</b></p>
@@ -490,10 +490,10 @@ document.querySelectorAll(".cur button").forEach(b => b.addEventListener("click"
 // Moneda por defecto: siempre pesos
 setCur("ARS");
 
-// Clase en vivo: miércoles 18:00 hora Argentina (21:00 UTC) mostrada en la hora local del visitante
+// Clase en vivo: miércoles 19:00 hora Argentina (22:00 UTC) mostrada en la hora local del visitante
 try {
   const now = new Date();
-  const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 21, 0));
+  const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 22, 0));
   d.setUTCDate(d.getUTCDate() + ((3 - d.getUTCDay() + 7) % 7));
   const s = d.toLocaleString("es", { weekday: "long", hour: "2-digit", minute: "2-digit" });
   document.querySelector("#localTime b").textContent = s + " hs";

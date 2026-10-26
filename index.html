@@ -104,6 +104,12 @@ nav .wrap{display:flex;align-items:center;justify-content:space-between;height:6
 .facts div{display:grid;gap:2px;min-width:0}
 .facts b{font-family:var(--label);font-size:22px;color:var(--fg);font-variant-numeric:tabular-nums}
 .facts span{font-size:13px;color:var(--muted)}
+.free{border:1px solid var(--gold);background:rgba(201,162,74,.08);padding:16px 18px;display:grid;gap:8px}
+.free-tag{justify-self:start;font-family:var(--label);font-weight:700;font-size:13px;letter-spacing:.14em;text-transform:uppercase;background:var(--gold);color:var(--bg);padding:3px 10px}
+.free p{font-size:15px;color:var(--muted)}
+.free p b{color:var(--fg)}
+.free a{font-family:var(--label);font-weight:700;letter-spacing:.06em;color:var(--gold-hi);text-decoration:none}
+.free a:hover{text-decoration:underline}
 .svc ul{list-style:none;margin:0;padding:0;display:grid;gap:10px}
 .svc li{display:grid;grid-template-columns:18px 1fr;gap:10px;align-items:start}
 .svc li::before{content:"";width:9px;height:9px;margin-top:9px;background:var(--gold);transform:rotate(45deg)}
@@ -227,7 +233,7 @@ footer .wrap{display:grid;gap:10px}
 <header class="hero" id="inicio">
   <div class="wrap">
     <div>
-      <p class="eyebrow">Coaching de League of Legends</p>
+      <p class="eyebrow">Coaching de League of Legends · <a href="#clases" style="color:var(--gold-hi)">Primera clase gratis el miércoles 4/11</a></p>
       <h1>Dejá de estancarte. <span>Subí de elo con un coach profesional.</span></h1>
       <p class="lead">Clases en vivo todas las semanas y coaching 1 a 1 donde analizamos tus replays, corregimos tus errores y te armo material para que sigas mejorando entre sesiones.</p>
       <div class="ctas">
@@ -251,6 +257,11 @@ footer .wrap{display:grid;gap:10px}
       <article class="svc" id="clases">
         <span class="tag">Grupal · En vivo</span>
         <h3>Clases generales en vivo</h3>
+        <div class="free">
+          <span class="free-tag">Primera clase gratis</span>
+          <p><b>Miércoles 4 de noviembre · 19 hs</b> (hora Argentina). Vení a probar sin pagar nada y después seguís con la mensualidad.</p>
+          <a href="https://wa.me/5491122602953?text=Hola!%20Quiero%20anotarme%20a%20la%20clase%20gratis%20del%20mi%C3%A9rcoles%204%20de%20noviembre" target="_blank" rel="noopener">Reservar mi lugar gratis →</a>
+        </div>
         <div class="facts">
           <div><b>Miércoles</b><span>todas las semanas</span></div>
           <div><b>18:00</b><span>hora Argentina</span></div>

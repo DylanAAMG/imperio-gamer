@@ -62,7 +62,7 @@ nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:rgba(
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:21;background:var(--bg)}
 nav .wrap{display:flex;align-items:center;justify-content:space-between;height:64px;gap:16px}
 .brand{font-family:var(--display);font-weight:800;font-size:20px;letter-spacing:.06em;text-decoration:none;color:var(--gold-hi);display:flex;align-items:center;gap:10px}
-.brand img{width:40px;height:auto;mix-blend-mode:lighten}
+.brand img{width:40px;height:auto}
 .navlinks{display:flex;gap:24px;font-family:var(--label);font-weight:600;letter-spacing:.08em;text-transform:uppercase;font-size:14px}
 .navlinks a{text-decoration:none;color:var(--muted)}
 .navlinks a:hover{color:var(--fg)}
@@ -75,7 +75,7 @@ nav .wrap{display:flex;align-items:center;justify-content:space-between;height:6
   radial-gradient(ellipse 50% 50% at 10% 90%, rgba(201,162,74,.14), transparent 70%);pointer-events:none}
 .hero .wrap{position:relative;display:grid;grid-template-columns:1.3fr .9fr;gap:40px;align-items:center}
 @media (max-width:860px){.hero .wrap{grid-template-columns:1fr}.hero-logo{order:-1;max-width:300px;margin:0 auto}}
-.hero-logo{width:100%;max-width:100%;height:auto;mix-blend-mode:lighten;filter:drop-shadow(0 0 40px rgba(255,120,30,.25))}
+.hero-logo{width:100%;max-width:100%;height:auto;filter:drop-shadow(0 0 40px rgba(255,120,30,.25))}
 .hero h1{font-size:clamp(40px,7vw,78px);color:var(--fg)}
 .hero h1 span{color:var(--gold-hi);display:block}
 .hero .lead{margin-top:20px;font-size:clamp(17px,2vw,20px);color:var(--muted);max-width:56ch}
@@ -211,7 +211,7 @@ footer .wrap{display:grid;gap:10px}
 <nav>
   <div class="wrap">
     <a class="brand" href="#inicio" aria-label="Imperio Gamer, inicio">
-      <img src="img/logo-icon.jpg" alt="" width="40" height="37">
+      <img src="img/logo-icon.png" alt="" width="40" height="37">
       IMPERIO GAMER
     </a>
     <div class="navlinks">
@@ -235,7 +235,7 @@ footer .wrap{display:grid;gap:10px}
         <a class="btn ghost" href="#clases">Ver clases en vivo</a>
       </div>
     </div>
-    <img class="hero-logo" src="img/logo.jpg" alt="Logo de Imperio Gamer" width="640" height="640">
+    <img class="hero-logo" src="img/logo.png" alt="Logo de Imperio Gamer" width="720" height="720">
   </div>
 </header>
 

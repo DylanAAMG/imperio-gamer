@@ -1,0 +1,14 @@
+{
+  "name": "imperio-gamer",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/dev.mjs"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^1.2.0"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.3.0"
+  }
+}

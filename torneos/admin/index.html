@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Inscripciones | Imperio Gamer</title>
+<link rel="icon" href="/torneos/img/favicon.png">
+<link rel="stylesheet" href="/torneos/estilos.css">
+</head>
+<body>
+<div class="envoltura admin">
+  <h1>Inscripciones</h1>
+  <form id="acceso" class="acceso">
+    <div class="campo">
+      <label for="clave">Contraseña</label>
+      <input id="clave" type="password" required autocomplete="current-password">
+      <span class="error" id="error" hidden></span>
+    </div>
+    <button class="boton" type="submit">Entrar</button>
+  </form>
+  <div id="panel" hidden>
+    <div class="acciones">
+      <button class="boton" id="csv" type="button">Descargar CSV</button>
+      <button class="boton borde" id="recargar" type="button">Actualizar</button>
+    </div>
+    <div id="contenido"></div>
+  </div>
+</div>
+<script type="module">
+import { TORNEOS } from "/torneos/datos.js";
+
+const $ = (id) => document.getElementById(id);
+const esc = (v) => String(v).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+const fechaHora = (v) => new Date(v).toLocaleString("es-AR", { timeZone: "America/Argentina/Buenos_Aires", dateStyle: "short", timeStyle: "short" });
+let clave = "";
+let filas = [];
+
+async function pedir(metodo, consulta = "") {
+  const r = await fetch(`/api/admin${consulta}`, { method: metodo, headers: { Authorization: `Bearer ${clave}` }, cache: "no-store" });
+  const d = await r.json();
+  if (!r.ok) throw Object.assign(new Error(d.error), { estado: r.status });
+  return d;
+}
+
+function pintar(cupos) {
+  $("contenido").innerHTML = TORNEOS.map((t) => {
+    const propias = filas.filter((f) => f.torneo_id === t.id);
+    const equipo = t.tipo === "equipo";
+    const cuerpo = propias.map((f) => `<tr>
+      <td>${esc(f.participante)}</td><td>${esc(f.nombre)}</td>
+      <td><a href="https://wa.me/${esc(f.whatsapp)}" target="_blank" rel="noopener">${esc(f.whatsapp)}</a></td>
+      <td>${esc(f.email)}</td>
+      ${equipo ? `<td>${f.jugadores.map(esc).join("<br>")}</td>` : ""}
+      <td>${fechaHora(f.creado_en)}</td>
+      <td><button class="quitar" type="button" data-id="${f.id}" data-nombre="${esc(f.participante)}">Quitar</button></td>
+    </tr>`).join("");
+    return `<h2>${esc(t.titulo)}: ${cupos[t.id] ?? 0} de ${t.cupos}</h2>` + (propias.length
+      ? `<div class="tabla"><table><thead><tr><th>${equipo ? "Equipo" : "Usuario"}</th><th>${equipo ? "Capitán" : "Nombre"}</th><th>WhatsApp</th><th>Email</th>${equipo ? "<th>Jugadores</th>" : ""}<th>Anotado</th><th></th></tr></thead><tbody>${cuerpo}</tbody></table></div>`
+      : `<p class="vacio">Todavía no hay inscripciones.</p>`);
+  }).join("");
+}
+
+async function cargar() {
+  const d = await pedir("GET");
+  filas = d.inscripciones;
+  pintar(d.cupos);
+}
+
+$("acceso").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  clave = $("clave").value;
+  try {
+    await cargar();
+    $("acceso").hidden = true;
+    $("panel").hidden = false;
+  } catch (err) {
+    $("error").textContent = err.message;
+    $("error").hidden = false;
+  }
+});
+$("recargar").addEventListener("click", cargar);
+$("contenido").addEventListener("click", async (e) => {
+  const b = e.target.closest("[data-id]");
+  if (!b || !confirm(`¿Quitar a ${b.dataset.nombre}? Su lugar vuelve a quedar libre.`)) return;
+  await pedir("DELETE", `?id=${b.dataset.id}`).catch((err) => alert(err.message));
+  await cargar();
+});
+$("csv").addEventListener("click", () => {
+  // Las comillas evitan cortes de columna; el apóstrofo evita que Excel ejecute texto como fórmula.
+  const celda = (v) => {
+    const s = String(v ?? "");
+    return `"${(/^[=+\-@\t\r]/.test(s) ? "'" + s : s).replace(/"/g, '""')}"`;
+  };
+  const cabecera = ["Torneo", "Usuario o equipo", "Nombre", "WhatsApp", "Email", "Jugador 1", "Jugador 2", "Jugador 3", "Jugador 4", "Jugador 5", "Anotado"];
+  const cuerpo = filas.map((f) => {
+    const t = TORNEOS.find((x) => x.id === f.torneo_id);
+    const j = Array.from({ length: 5 }, (_, i) => f.jugadores[i] ?? "");
+    return [t?.titulo ?? f.torneo_id, f.participante, f.nombre, f.whatsapp, f.email, ...j, fechaHora(f.creado_en)];
+  });
+  const texto = "﻿" + [cabecera, ...cuerpo].map((c) => c.map(celda).join(";")).join("\r\n");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([texto], { type: "text/csv;charset=utf-8" }));
+  a.download = "inscripciones-imperio-gamer.csv";
+  a.click();
+  URL.revokeObjectURL(a.href);
+});
+</script>
+</body>
+</html>

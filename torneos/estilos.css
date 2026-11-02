@@ -1,0 +1,123 @@
+@font-face{font-family:"Big Shoulders Display";src:url(fonts/big-shoulders-display-latin-800-normal.woff2) format("woff2");font-weight:800;font-display:swap}
+@font-face{font-family:"Barlow";src:url(fonts/barlow-latin-400-normal.woff2) format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"Barlow";src:url(fonts/barlow-latin-600-normal.woff2) format("woff2");font-weight:600;font-display:swap}
+
+:root{
+  --negro:#000;
+  --carbon:#15110e;
+  --ceniza:#3a302a;
+  --piedra:#b7aea6;
+  --hueso:#f1ebe4;
+  --ascua:#ff7a14;
+  --fuego:#ffb13d;
+  --rojo:#ff6b57;
+  --display:"Big Shoulders Display","Arial Narrow",Impact,sans-serif;
+  --texto:"Barlow","Segoe UI",system-ui,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--negro);color:var(--hueso);font:400 17px/1.55 var(--texto);overflow-x:hidden}
+img{display:block;max-width:100%;height:auto}
+a{color:inherit}
+h1,h2,h3,p{margin:0}
+.envoltura{max-width:1120px;margin-inline:auto;padding-inline:max(16px,env(safe-area-inset-left))}
+:focus-visible{outline:2px solid var(--fuego);outline-offset:3px}
+
+/* Portada */
+.barra{display:flex;justify-content:flex-end;padding-block:18px}
+.barra a{color:var(--piedra);text-underline-offset:4px}
+.barra a:hover{color:var(--hueso)}
+.portada{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);align-items:center;gap:24px;padding-bottom:clamp(32px,6vw,72px)}
+.portada h1{font:800 clamp(64px,12vw,136px)/.88 var(--display);text-transform:uppercase;letter-spacing:-.005em;text-wrap:balance}
+.portada p{margin-top:24px;max-width:44ch;font-size:clamp(18px,2vw,21px);color:var(--piedra)}
+.portada img{width:100%;max-width:470px;justify-self:end}
+
+/* Lista de torneos */
+.torneo{position:relative;display:grid;grid-template-columns:clamp(150px,20vw,230px) minmax(0,1fr);column-gap:clamp(20px,4vw,48px);padding-block:clamp(28px,5vw,52px);border-top:2px solid var(--ceniza);scroll-margin-top:16px}
+.torneo:last-child{border-bottom:2px solid var(--ceniza)}
+.fecha{display:grid;align-content:start}
+.fecha b{font:800 clamp(112px,16vw,184px)/.8 var(--display);background:linear-gradient(180deg,var(--fuego) 12%,var(--ascua) 58%,#b52f06 100%);-webkit-background-clip:text;background-clip:text;color:transparent;padding-bottom:10px}
+.fecha span{color:var(--hueso);font-weight:600;line-height:1.3}
+.cuerpo{display:grid;gap:18px;min-width:0}
+.torneo h2{font:800 clamp(42px,6.4vw,76px)/.95 var(--display);text-transform:uppercase}
+.formato{color:var(--piedra);margin-top:6px}
+
+.cupos{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));gap:clamp(3px,.8vw,6px);max-width:560px;padding:0;margin:0;list-style:none}
+.cupos li{height:34px;background:var(--carbon);box-shadow:inset 0 0 0 1px var(--ceniza);clip-path:polygon(28% 0,100% 0,72% 100%,0 100%)}
+.cupos li.ocupado{background:linear-gradient(180deg,var(--fuego),var(--ascua));box-shadow:none}
+.conteo{color:var(--hueso);font-weight:600;min-height:1.55em}
+.conteo.aviso{color:var(--fuego)}
+
+.detalles{margin:0;padding-left:1.1em;color:var(--piedra);max-width:62ch}
+.detalles.pendiente{list-style:none;padding:0}
+
+.boton{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:10px 34px;border:0;background:linear-gradient(180deg,var(--fuego),var(--ascua));color:#000;font:800 25px/1 var(--display);text-transform:uppercase;letter-spacing:.015em;cursor:pointer;clip-path:polygon(12px 0,100% 0,calc(100% - 12px) 100%,0 100%);text-decoration:none}
+.boton:hover{filter:brightness(1.1)}
+.boton[disabled]{background:var(--ceniza);color:var(--piedra);cursor:not-allowed;filter:none}
+.torneo .boton{justify-self:start}
+.boton.borde{background:var(--ceniza);color:var(--hueso)}
+
+.pie{padding-block:40px 56px;color:var(--piedra);font-size:15px;display:grid;gap:12px}
+.pie p{max-width:76ch}
+
+/* Formulario */
+dialog{width:min(620px,100%);max-width:100%;max-height:100dvh;margin:auto;padding:0;background:var(--carbon);color:var(--hueso);border:0;border-top:4px solid var(--ascua)}
+dialog::backdrop{background:rgba(0,0,0,.82)}
+dialog[open]{animation:abrir .22s ease-out}
+@keyframes abrir{from{opacity:0;transform:translateY(16px)}}
+.hoja{padding:clamp(20px,4vw,34px)}
+.hoja-cabeza{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:22px}
+.hoja h2{font:800 clamp(36px,6vw,48px)/1 var(--display);text-transform:uppercase}
+.hoja-fecha{color:var(--piedra);margin-top:4px}
+.cerrar{flex:none;width:44px;height:44px;margin:-6px -8px 0 0;background:none;border:0;color:var(--hueso);font-size:30px;line-height:1;cursor:pointer}
+.campo{display:grid;gap:5px;margin-bottom:15px}
+.campo label{font-weight:600}
+.campo small{color:var(--piedra);font-size:14.5px;line-height:1.35}
+.campo input{width:100%;min-height:48px;padding:10px 12px;background:var(--negro);border:1px solid #6b5d53;border-radius:0;color:var(--hueso);font:400 17px var(--texto)}
+.campo input:focus{outline:2px solid var(--fuego);outline-offset:0;border-color:var(--fuego)}
+.campo input[aria-invalid=true]{border-color:var(--rojo)}
+.campo .error{color:var(--rojo);font-size:15px;font-weight:600;line-height:1.35}
+fieldset{border:0;padding:0;margin:22px 0 4px}
+legend{padding:0;font:800 27px/1.2 var(--display);text-transform:uppercase;margin-bottom:6px}
+fieldset>p{color:var(--piedra);margin-bottom:14px;font-size:15.5px}
+.trampa{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.aviso-datos{color:var(--piedra);font-size:14.5px;margin-block:6px 18px}
+.error-general{background:#3a120d;border-left:3px solid var(--rojo);padding:10px 12px;margin-bottom:16px}
+.hoja .boton{width:100%}
+.exito{display:grid;gap:14px}
+.exito h2{color:var(--fuego)}
+
+@media (max-width:760px){
+  .portada{grid-template-columns:1fr;gap:6px}
+  .portada img{grid-row:1;justify-self:center;width:min(78vw,340px)}
+  .portada h1{text-align:left}
+  .torneo{grid-template-columns:1fr;row-gap:18px}
+  .fecha{grid-template-columns:auto 1fr;align-items:end;column-gap:14px}
+  .fecha b{font-size:112px;padding-bottom:2px}
+  .fecha span{padding-bottom:10px}
+  .torneo .boton{justify-self:stretch}
+  dialog{min-height:100dvh}
+}
+
+/* Único movimiento de la página: los cupos ocupados se encienden al cargar. */
+@media (prefers-reduced-motion:no-preference){
+  .cupos li.ocupado{animation:encender .35s ease-out backwards;animation-delay:calc(var(--i)*45ms)}
+  @keyframes encender{from{opacity:.1;filter:brightness(2)}}
+}
+@media (prefers-reduced-motion:reduce){dialog[open]{animation:none}}
+
+/* Panel de organización */
+.admin{padding-block:32px 64px}
+.admin h1{font:800 clamp(44px,8vw,72px)/1 var(--display);text-transform:uppercase;margin-bottom:20px}
+.admin h2{font:800 34px/1.1 var(--display);text-transform:uppercase;margin-block:34px 12px}
+.acceso{max-width:380px}
+.acciones{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:8px}
+.tabla{overflow-x:auto;border:1px solid var(--ceniza)}
+table{width:100%;border-collapse:collapse;font-size:15.5px}
+th,td{padding:9px 11px;text-align:left;vertical-align:top;border-bottom:1px solid var(--ceniza)}
+th{background:var(--carbon);font-weight:600;white-space:nowrap}
+tr:last-child td{border-bottom:0}
+.quitar{background:none;border:1px solid var(--ceniza);color:var(--hueso);padding:6px 10px;cursor:pointer;font:600 14px var(--texto)}
+.quitar:hover{border-color:var(--rojo);color:var(--rojo)}
+.vacio{color:var(--piedra)}

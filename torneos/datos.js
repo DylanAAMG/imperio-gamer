@@ -13,8 +13,8 @@ export const TORNEOS = [
     dia: "Jueves",
     numero: 5,
     formato: "Individual, 1 contra 1",
-    cierre: "2026-11-05T00:00:00-03:00",
-    detalles: [],
+    cierre: "2026-11-05T19:00:00-03:00",
+    detalles: ["19 hs: empieza y termina el mismo día.", "Premios a definir."],
   },
   {
     id: "valorant",
@@ -27,8 +27,12 @@ export const TORNEOS = [
     dia: "Jueves",
     numero: 12,
     formato: "Por equipos de 5",
-    cierre: "2026-11-12T00:00:00-03:00",
-    detalles: [],
+    cierre: "2026-11-12T19:00:00-03:00",
+    detalles: [
+      "Jueves 12, 19 hs: primera ronda.",
+      "Miércoles 18, 19 hs: semifinales y final.",
+      "Premios a definir.",
+    ],
   },
   {
     id: "lol",
@@ -37,12 +41,16 @@ export const TORNEOS = [
     tipo: "equipo",
     cupos: 8,
     jugadores: 5,
-    fecha: "2026-11-19",
-    dia: "Jueves",
-    numero: 19,
+    fecha: "2026-11-16",
+    dia: "Lunes",
+    numero: 16,
     formato: "Por equipos de 5",
-    cierre: "2026-11-19T00:00:00-03:00",
-    detalles: [],
+    cierre: "2026-11-16T19:00:00-03:00",
+    detalles: [
+      "Lunes 16, 19 hs: primera ronda.",
+      "Lunes 23, 19 hs: semifinales y final.",
+      "Premios a definir.",
+    ],
   },
 ];
 

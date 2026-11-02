@@ -93,7 +93,7 @@ function htmlFormulario(t) {
     <div class="error-general" role="alert" hidden></div>
     ${campo("participante", equipo ? "Nombre del equipo" : "Usuario del juego", { ayuda: equipo ? "" : "Con este nombre vas a figurar en el torneo." })}
     ${campo("nombre", equipo ? "Nombre y apellido del capitán" : "Nombre y apellido", { auto: "name" })}
-    ${campo("whatsapp", equipo ? "WhatsApp del capitán" : "WhatsApp", { tipo: "tel", auto: "tel", ayuda: "Por acá te avisamos horarios y cruces." })}
+    ${campo("whatsapp", equipo ? "WhatsApp del capitán" : "WhatsApp", { tipo: "tel", auto: "tel", ayuda: "Por acá te avisamos los cruces." })}
     ${campo("email", "Email", { tipo: "email", auto: "email" })}
     ${jugadores}
     <div class="trampa" aria-hidden="true"><label>Sitio web <input name="sitio" tabindex="-1" autocomplete="off"></label></div>
@@ -123,7 +123,7 @@ function mostrarExito(t, puesto) {
   dialogo.innerHTML = `<div class="hoja exito">
     <h2 id="dialogo-titulo">${nombre}</h2>
     <p><strong>${esc(t.titulo)}</strong>, ${t.dia.toLowerCase()} ${t.numero} de noviembre.${puesto ? ` Tenés el lugar ${puesto} de ${t.cupos}.` : ""}</p>
-    <p>Te vamos a escribir por WhatsApp con el horario y los cruces.</p>
+    <p>Te vamos a escribir por WhatsApp con los cruces.</p>
     <button class="boton" type="button" data-cerrar>Listo</button>
   </div>`;
   dialogo.querySelector("[data-cerrar]").focus();

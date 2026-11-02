@@ -5,15 +5,15 @@
 export const TORNEOS = [
   {
     id: "fifa",
-    juego: "FIFA",
-    titulo: "FIFA 1v1",
+    juego: "FIFA 26",
+    titulo: "FIFA 26",
     tipo: "individual",
     cupos: 16,
-    fecha: "2026-11-05",
-    dia: "Jueves",
-    numero: 5,
+    fecha: "2026-11-09",
+    dia: "Lunes",
+    numero: 9,
     formato: "Individual, 1 contra 1",
-    cierre: "2026-11-05T19:00:00-03:00",
+    cierre: "2026-11-09T19:00:00-03:00",
     detalles: ["19 hs: empieza y termina el mismo día.", "Premios a definir."],
   },
   {

@@ -25,8 +25,11 @@ export function validarInscripcion(t, cuerpo) {
     const lista = Array.isArray(cuerpo.jugadores) ? cuerpo.jugadores.map(limpiar) : [];
     jugadores = lista.slice(0, t.jugadores);
     for (let i = 0; i < t.jugadores; i++) {
-      if (!RIOT_ID.test(jugadores[i] ?? "")) {
+      const jugador = jugadores[i] ?? "";
+      if (t.riotId && !RIOT_ID.test(jugador)) {
         errores[`jugador${i}`] = "Usá el formato Nombre#TAG, por ejemplo Dolan#LAS.";
+      } else if (!t.riotId && (jugador.length < 2 || jugador.length > 40)) {
+        errores[`jugador${i}`] = "Escribí el usuario de este jugador.";
       }
     }
     const vistos = new Set();

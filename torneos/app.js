@@ -75,9 +75,9 @@ function htmlFormulario(t) {
   const jugadores = equipo
     ? `<fieldset>
         <legend>Jugadores</legend>
-        <p>Riot ID de los ${t.jugadores} titulares, con el formato Nombre#TAG.</p>
+        <p>${t.riotId ? `Riot ID de los ${t.jugadores} titulares, con el formato Nombre#TAG.` : `Usuario de Epic o Steam de los ${t.jugadores} jugadores.`}</p>
         ${Array.from({ length: t.jugadores }, (_, i) =>
-          campo(`jugador${i}`, `Jugador ${i + 1}${i === 0 ? " (capitán)" : ""}`, { extra: 'placeholder="Nombre#TAG" autocapitalize="off" spellcheck="false"' })
+          campo(`jugador${i}`, `Jugador ${i + 1}${i === 0 ? " (capitán)" : ""}`, { extra: `placeholder="${t.riotId ? "Nombre#TAG" : "Usuario"}" autocapitalize="off" spellcheck="false"` })
         ).join("")}
       </fieldset>`
     : "";

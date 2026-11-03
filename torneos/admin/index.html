@@ -24,6 +24,7 @@
       <button class="boton" id="csv" type="button">Descargar CSV</button>
       <button class="boton borde" id="recargar" type="button">Actualizar</button>
     </div>
+    <div class="error-general" id="aviso" role="alert" hidden></div>
     <div id="contenido"></div>
   </div>
 </div>
@@ -82,8 +83,27 @@ $("acceso").addEventListener("submit", async (e) => {
 $("recargar").addEventListener("click", cargar);
 $("contenido").addEventListener("click", async (e) => {
   const b = e.target.closest("[data-id]");
-  if (!b || !confirm(`¿Quitar a ${b.dataset.nombre}? Su lugar vuelve a quedar libre.`)) return;
-  await pedir("DELETE", `?id=${b.dataset.id}`).catch((err) => alert(err.message));
+  if (!b || b.disabled) return;
+  // Primer clic: pide confirmar en el mismo botón. Segundo clic: quita.
+  if (!b.dataset.confirmar) {
+    b.dataset.confirmar = "1";
+    b.textContent = "¿Seguro? Tocá de nuevo";
+    setTimeout(() => {
+      if (b.isConnected && !b.disabled) {
+        delete b.dataset.confirmar;
+        b.textContent = "Quitar";
+      }
+    }, 5000);
+    return;
+  }
+  b.disabled = true;
+  b.textContent = "Quitando…";
+  try {
+    await pedir("DELETE", `?id=${b.dataset.id}`);
+  } catch (err) {
+    $("aviso").textContent = `No se pudo quitar: ${err.message}`;
+    $("aviso").hidden = false;
+  }
   await cargar();
 });
 $("csv").addEventListener("click", () => {

@@ -14,7 +14,7 @@ export const TORNEOS = [
     numero: 9,
     formato: "Individual, 1 contra 1",
     cierre: "2026-11-09T19:00:00-03:00",
-    detalles: ["19 hs: empieza y termina el mismo día.", "Premios a definir."],
+    detalles: ["19 hs: empieza y termina el mismo día.", "Premio: un periférico."],
   },
   {
     id: "rocket-league",
@@ -28,7 +28,7 @@ export const TORNEOS = [
     numero: 12,
     formato: "Por parejas, 2 contra 2",
     cierre: "2026-11-12T20:00:00-03:00",
-    detalles: ["Jueves 12, 20 hs."],
+    detalles: ["Jueves 12, 20 hs.", "Premio: periféricos."],
   },
   {
     id: "valorant-high",
@@ -46,7 +46,7 @@ export const TORNEOS = [
     detalles: [
       "Lunes 16, 19 hs: primera ronda.",
       "Lunes 23, 19 hs: semifinales y final.",
-      "Premios a definir.",
+      "Premio: combo de teclado, mouse y mousepad.",
     ],
   },
   {
@@ -65,7 +65,7 @@ export const TORNEOS = [
     detalles: [
       "Martes 17, 19 hs: primera ronda.",
       "Martes 24, 19 hs: semifinales y final.",
-      "Sin premio.",
+      "Premio a definir.",
     ],
   },
 ];

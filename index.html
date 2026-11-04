@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Imperio Gamer</title>
-<meta name="description" content="Coaching de League of Legends con un jugador Grandmaster y Rank 1 LAS. Clases en vivo, coaching 1 a 1 y coaching premium con análisis de replays.">
+<meta name="description" content="Coaching de League of Legends con un jugador Grandmaster y Rank 1 LAS. Coaching 1 a 1 y coaching premium con análisis de replays.">
 <meta name="theme-color" content="#060c18">
 <link rel="icon" href="img/favicon.png">
 <link rel="apple-touch-icon" href="img/favicon.png">
@@ -12,7 +12,7 @@
 <meta property="og:locale" content="es_AR">
 <meta property="og:url" content="https://imperio-gamer.vercel.app/">
 <meta property="og:title" content="Imperio Gamer · Coaching de League of Legends">
-<meta property="og:description" content="Coaching de League of Legends con un jugador Grandmaster y Rank 1 LAS. Clases en vivo, coaching 1 a 1 y coaching premium con análisis de replays.">
+<meta property="og:description" content="Coaching de League of Legends con un jugador Grandmaster y Rank 1 LAS. Coaching 1 a 1 y coaching premium con análisis de replays.">
 <meta property="og:image" content="https://imperio-gamer.vercel.app/img/og.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -94,8 +94,13 @@ nav .wrap{display:flex;align-items:center;justify-content:space-between;height:6
 .plate dd{margin:0;font-weight:600}
 
 /* Servicios */
-.services{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
-@media (max-width:1040px){.services{grid-template-columns:1fr}}
+.services{display:grid;grid-template-columns:repeat(2,1fr);gap:24px;max-width:920px}
+@media (max-width:860px){.services{grid-template-columns:1fr}}
+.pack{display:grid;gap:4px;padding:14px 16px;border:1px dashed var(--gold);background:rgba(201,162,74,.07);justify-self:stretch}
+.pack-tag{font-family:var(--label);font-weight:700;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-hi)}
+.pack-price{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.pack-price b{font-family:var(--display);font-weight:800;font-size:26px;color:var(--fg);font-variant-numeric:tabular-nums}
+.pack-price small,.pack-total{color:var(--muted);font-size:14px}
 .svc.premium{border-color:var(--gold-hi);box-shadow:0 0 0 1px var(--gold) inset,0 20px 60px -20px rgba(201,162,74,.45);background:linear-gradient(180deg,#1d2a40,var(--bg2))}
 .svc.premium .tag{background:var(--gold);color:var(--bg);border-color:var(--gold)}
 .svc{background:var(--bg2);border:1px solid var(--line);padding:28px;display:flex;flex-direction:column;gap:18px;min-width:0}
@@ -237,12 +242,12 @@ footer .wrap{display:grid;gap:10px}
 <header class="hero" id="inicio">
   <div class="wrap">
     <div>
-      <p class="eyebrow">Coaching de League of Legends · <a href="#clases" style="color:var(--gold-hi)">Primera clase gratis el miércoles 4/11</a></p>
+      <p class="eyebrow">Coaching de League of Legends</p>
       <h1>Dejá de estancarte. <span>Subí de elo con un coach profesional.</span></h1>
-      <p class="lead">Clases en vivo todas las semanas y coaching 1 a 1 donde analizamos tus replays, corregimos tus errores y te armo material para que sigas mejorando entre sesiones.</p>
+      <p class="lead">Coaching 1 a 1 donde analizamos tus replays, corregimos tus errores y te armo material para que sigas mejorando entre sesiones.</p>
       <div class="ctas">
         <a class="btn" href="#coaching">Reservar coaching 1 a 1</a>
-        <a class="btn ghost" href="#clases">Ver clases en vivo</a>
+        <a class="btn ghost" href="#premium">Ver coaching premium</a>
       </div>
     </div>
     <img class="hero-logo" src="img/logo.png" alt="Logo de Imperio Gamer" width="720" height="720">
@@ -254,42 +259,10 @@ footer .wrap{display:grid;gap:10px}
     <div class="sec-head">
       <p class="eyebrow">Servicios disponibles</p>
       <h2>Elegí cómo querés entrenar</h2>
-      <p>Arrancá con la clase grupal o andá directo al coaching personalizado sobre tus propias partidas.</p>
+      <p>Coaching personalizado sobre tus propias partidas. Elegí la sesión individual o el pack de 3 con descuento.</p>
     </div>
 
     <div class="services">
-      <article class="svc" id="clases">
-        <span class="tag">Grupal · En vivo</span>
-        <h3>Clases generales en vivo</h3>
-        <div class="free">
-          <span class="free-tag">Primera clase gratis</span>
-          <p><b>Miércoles 4 de noviembre · 19 hs</b> (hora Argentina). Vení a probar sin pagar nada y después seguís con la mensualidad.</p>
-          <a href="https://wa.me/5491122602953?text=Hola!%20Quiero%20anotarme%20a%20la%20clase%20gratis%20del%20mi%C3%A9rcoles%204%20de%20noviembre" target="_blank" rel="noopener">Reservar mi lugar gratis →</a>
-        </div>
-        <div class="facts">
-          <div><b>Miércoles</b><span>todas las semanas</span></div>
-          <div><b>19:00</b><span>hora Argentina</span></div>
-          <div><b>40 min</b><span>de clase</span></div>
-        </div>
-        <p class="local" id="localTime">En tu zona horaria: <b>calculando…</b></p>
-        <ul>
-          <li>Teoría del SoloQ</li>
-          <li>Explicación del macrogame</li>
-          <li>Preguntas y respuestas</li>
-          <li>Review en partida de los conceptos</li>
-        </ul>
-        <p class="local">Escribinos por WhatsApp, abonás la mensualidad y te damos acceso al Discord privado.</p>
-        <div class="svc-foot">
-          <div class="cur" role="group" aria-label="Moneda de las clases">
-            <button type="button" id="cur-ARS-c" data-cur="ARS" aria-pressed="true">ARS</button>
-            <button type="button" id="cur-USD-c" data-cur="USD" aria-pressed="false">USD</button>
-            <button type="button" id="cur-EUR-c" data-cur="EUR" aria-pressed="false">EUR</button>
-          </div>
-          <div class="price"><span class="amount" data-ars="39000">$39.000</span><small data-note="mensualidad">pesos argentinos · mensualidad</small></div>
-          <a class="btn blue" href="https://wa.me/5491122602953?text=Hola!%20Quiero%20anotarme%20a%20las%20clases%20en%20vivo%20de%20Imperio%20Gamer" target="_blank" rel="noopener">Quiero anotarme</a>
-        </div>
-      </article>
-
       <article class="svc featured" id="coaching">
         <span class="tag">Personalizado · 1 a 1</span>
         <h3>Coaching mano a mano</h3>
@@ -311,7 +284,12 @@ footer .wrap{display:grid;gap:10px}
             <button type="button" id="cur-USD" data-cur="USD" aria-pressed="false">USD</button>
             <button type="button" id="cur-EUR" data-cur="EUR" aria-pressed="false">EUR</button>
           </div>
-          <div class="price"><span class="amount" data-ars="69000">$69.000</span><small data-note="por sesión">pesos argentinos · por sesión</small></div>
+          <div class="price"><span class="amount" data-ars="25000">$25.000</span><small data-note="por sesión">pesos argentinos · por sesión</small></div>
+          <div class="pack">
+            <span class="pack-tag">Pack de 3 sesiones</span>
+            <div class="pack-price"><b data-ars="20000">$20.000</b><small>cada una</small></div>
+            <span class="pack-total">Total: <span data-ars="60000">$60.000</span> por las 3</span>
+          </div>
           <a class="btn" href="https://wa.me/5491122602953?text=Hola!%20Quiero%20reservar%20un%20coaching%201%20a%201%20de%20Imperio%20Gamer" target="_blank" rel="noopener">Reservar mi sesión</a>
         </div>
       </article>
@@ -341,7 +319,12 @@ footer .wrap{display:grid;gap:10px}
             <button type="button" id="cur-USD-p" data-cur="USD" aria-pressed="false">USD</button>
             <button type="button" id="cur-EUR-p" data-cur="EUR" aria-pressed="false">EUR</button>
           </div>
-          <div class="price"><span class="amount" data-ars="100000">$100.000</span><small data-note="por sesión">pesos argentinos · por sesión</small></div>
+          <div class="price"><span class="amount" data-ars="35000">$35.000</span><small data-note="por sesión">pesos argentinos · por sesión</small></div>
+          <div class="pack">
+            <span class="pack-tag">Pack de 3 sesiones premium</span>
+            <div class="pack-price"><b data-ars="30000">$30.000</b><small>cada una</small></div>
+            <span class="pack-total">Total: <span data-ars="90000">$90.000</span> por las 3</span>
+          </div>
           <a class="btn" href="https://wa.me/5491122602953?text=Hola!%20Quiero%20reservar%20un%20coaching%20premium%20de%20Imperio%20Gamer" target="_blank" rel="noopener">Quiero el premium</a>
         </div>
       </article>
@@ -365,7 +348,7 @@ footer .wrap{display:grid;gap:10px}
     </ol>
     <div class="steps-cta">
       <a class="btn" href="https://wa.me/5491122602953?text=Hola!%20Quiero%20reservar%20un%20coaching%201%20a%201%20de%20Imperio%20Gamer" target="_blank" rel="noopener">Reservar mi sesión</a>
-      <p>Desde $69.000 por sesión.</p>
+      <p>Desde $25.000 por sesión, o $20.000 cada una en el pack de 3.</p>
     </div>
   </div>
 </section>
@@ -438,10 +421,10 @@ footer .wrap{display:grid;gap:10px}
       <details><summary>¿Cuántas sesiones necesito para ver resultados?</summary><p>No te damos el pez, te enseñamos a pescar. No prometemos resultados porque te damos todas las herramientas para que puedas subir de rango sin problema, pero siempre depende de vos: de las ganas que le pongas y de que uses todo lo que te explicamos.</p></details>
       <details><summary>¿Cómo pago desde fuera de Argentina?</summary><p>Con PayPal, en dólares o euros. Desde Argentina podés pagar en pesos con Mercado Pago.</p></details>
       <details><summary>¿Cómo te mando las replays?</summary><p>Te paso las instrucciones cuando reservás. Podés mandar el archivo de la partida o un video grabado.</p></details>
-      <details><summary>¿Dónde se hacen las clases?</summary><p>Todo es por Discord. Para las clases en vivo, primero nos escribís, abonás la mensualidad y te damos acceso al servidor privado.</p></details>
-      <details><summary>¿Necesito jugar tu rol o tus campeones?</summary><p>No. Tanto las clases en vivo como el coaching mano a mano abarcan todos los roles.</p></details>
+      <details><summary>¿Dónde se hacen las sesiones?</summary><p>Todo es por Discord. Reservás por WhatsApp, abonás y coordinamos la sesión.</p></details>
+      <details><summary>¿Necesito jugar tu rol o tus campeones?</summary><p>No. Tanto el coaching mano a mano como el premium abarcan todos los roles.</p></details>
       <details><summary>¿Sirve si juego en otro servidor, como LAN o Europa?</summary><p>Sí, sirve. Lo que trabajamos aplica a cualquier servidor.</p></details>
-      <details><summary>¿Puedo pagar varias sesiones juntas?</summary><p>Sí, y tenemos packs con descuento. Escribinos por WhatsApp y te armamos el tuyo.</p></details>
+      <details><summary>¿Puedo pagar varias sesiones juntas?</summary><p>Sí. Con el pack de 3 sesiones, el coaching mano a mano sale $20.000 cada una y el premium $30.000 cada una.</p></details>
       <details><summary>¿Hay reembolso?</summary><p>No, no hay reembolsos.</p></details>
     </div>
   </div>
@@ -456,7 +439,7 @@ footer .wrap{display:grid;gap:10px}
     <div class="contact">
       <a class="ch" href="https://wa.me/5491122602953" target="_blank" rel="noopener"><span class="eyebrow">WhatsApp</span><b>+54 9 11 2260-2953</b><span>Respuesta más rápida</span></a>
       <a class="ch" href="https://instagram.com/dolang.gr" target="_blank" rel="noopener"><span class="eyebrow">Instagram</span><b>@dolang.gr</b><span>Clips y tips todas las semanas</span></a>
-      <a class="ch" href="https://discord.gg/DEGWV3vEn" target="_blank" rel="noopener"><span class="eyebrow">Discord</span><b>Imperio Gamer</b><span>Clases en vivo y comunidad</span></a>
+      <a class="ch" href="https://discord.gg/DEGWV3vEn" target="_blank" rel="noopener"><span class="eyebrow">Discord</span><b>Imperio Gamer</b><span>Comunidad de Imperio Gamer</span></a>
     </div>
   </div>
 </section>
@@ -494,14 +477,6 @@ document.querySelectorAll(".cur button").forEach(b => b.addEventListener("click"
 // Moneda por defecto: siempre pesos
 setCur("ARS");
 
-// Clase en vivo: miércoles 19:00 hora Argentina (22:00 UTC) mostrada en la hora local del visitante
-try {
-  const now = new Date();
-  const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 22, 0));
-  d.setUTCDate(d.getUTCDate() + ((3 - d.getUTCDay() + 7) % 7));
-  const s = d.toLocaleString("es", { weekday: "long", hour: "2-digit", minute: "2-digit" });
-  document.querySelector("#localTime b").textContent = s + " hs";
-} catch(e) { document.getElementById("localTime").hidden = true; }
 </script>
 
 </body>

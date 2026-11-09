@@ -7,6 +7,7 @@ import { PGlite } from "@electric-sql/pglite";
 import { usarDriver } from "../api/_lib/db.js";
 import admin from "../api/admin.js";
 import inscripciones from "../api/inscripciones.js";
+import llaves from "../api/llaves.js";
 import torneos from "../api/torneos.js";
 
 const raiz = process.cwd();
@@ -16,7 +17,7 @@ process.env.ADMIN_PASSWORD ??= "prueba";
 const pg = new PGlite();
 usarDriver(async (texto, params = []) => (await pg.query(texto, params)).rows);
 
-const rutas = { "/api/admin": admin, "/api/inscripciones": inscripciones, "/api/torneos": torneos };
+const rutas = { "/api/admin": admin, "/api/inscripciones": inscripciones, "/api/llaves": llaves, "/api/torneos": torneos };
 const tipos = {
   ".html": "text/html; charset=utf-8",
   ".js": "text/javascript; charset=utf-8",

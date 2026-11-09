@@ -41,6 +41,11 @@ const ESQUEMA = [
   `CREATE UNIQUE INDEX IF NOT EXISTS uq_participante ON inscripciones (torneo_id, lower(participante))`,
   `CREATE UNIQUE INDEX IF NOT EXISTS uq_email ON inscripciones (torneo_id, email)`,
   `CREATE UNIQUE INDEX IF NOT EXISTS uq_whatsapp ON inscripciones (torneo_id, whatsapp)`,
+  `CREATE TABLE IF NOT EXISTS llaves (
+     torneo_id text PRIMARY KEY,
+     datos jsonb NOT NULL,
+     actualizado timestamptz NOT NULL DEFAULT now()
+   )`,
 ];
 
 async function prepararEsquema() {
@@ -101,4 +106,25 @@ export async function borrarInscripcion(id) {
     [id]
   );
   return filas.length > 0;
+}
+
+// Llaves eliminatorias: una fila por torneo con los cruces, ganadores y resultados.
+export async function leerLlaves() {
+  const filas = await consulta(`SELECT torneo_id, datos, actualizado FROM llaves`);
+  return Object.fromEntries(
+    filas.map((f) => [
+      f.torneo_id,
+      { datos: typeof f.datos === "string" ? JSON.parse(f.datos) : f.datos, actualizado: f.actualizado },
+    ])
+  );
+}
+
+export async function guardarLlave(id, datos) {
+  const filas = await consulta(
+    `INSERT INTO llaves (torneo_id, datos) VALUES ($1, $2::jsonb)
+     ON CONFLICT (torneo_id) DO UPDATE SET datos = EXCLUDED.datos, actualizado = now()
+     RETURNING actualizado`,
+    [id, JSON.stringify(datos)]
+  );
+  return filas[0].actualizado;
 }

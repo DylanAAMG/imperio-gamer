@@ -1,20 +1,10 @@
-import { createHash, timingSafeEqual } from "node:crypto";
+import { autorizado, esperaPorClaveIncorrecta } from "./_lib/auth.js";
 import { borrarInscripcion, leerCupos, listarInscripciones } from "./_lib/db.js";
 import { responder, responderErrorDeBase } from "./_lib/http.js";
 
-const resumen = (v) => createHash("sha256").update(v).digest();
-
-function autorizado(req) {
-  const clave = process.env.ADMIN_PASSWORD;
-  if (!clave) return false;
-  const enviada = (req.headers.authorization ?? "").replace(/^Bearer /, "");
-  return timingSafeEqual(resumen(enviada), resumen(clave));
-}
-
 export default async function handler(req, res) {
   if (!autorizado(req)) {
-    // Una pequeña espera vuelve impráctico probar contraseñas en masa.
-    await new Promise((r) => setTimeout(r, 800));
+    await esperaPorClaveIncorrecta();
     return responder(res, 401, { error: "Contraseña incorrecta." });
   }
 

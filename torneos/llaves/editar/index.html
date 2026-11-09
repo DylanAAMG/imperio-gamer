@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Editar llaves | Imperio Gamer</title>
+<link rel="icon" href="/torneos/img/favicon.png">
+<link rel="stylesheet" href="/torneos/estilos.css">
+</head>
+<body>
+<div class="envoltura admin">
+  <div class="barra"><a href="/torneos/admin">Volver a inscripciones</a></div>
+  <h1>Editar llaves</h1>
+  <form id="acceso" class="acceso">
+    <div class="campo">
+      <label for="clave">Contraseña</label>
+      <input id="clave" type="password" required autocomplete="current-password">
+      <span class="error" id="error" hidden></span>
+    </div>
+    <button class="boton" type="submit">Entrar</button>
+  </form>
+
+  <div id="panel" hidden>
+    <div class="editor-controles">
+      <div class="campo">
+        <label for="torneo">Torneo</label>
+        <select id="torneo"></select>
+      </div>
+      <div class="campo">
+        <label for="tamano">Empieza en</label>
+        <select id="tamano">
+          <option value="32">16avos de final (32 lugares)</option>
+          <option value="16">Octavos de final (16 lugares)</option>
+          <option value="8">Cuartos de final (8 lugares)</option>
+          <option value="4">Semifinales (4 lugares)</option>
+        </select>
+      </div>
+    </div>
+    <div class="acciones">
+      <button class="boton" id="sortear" type="button">Sortear inscriptos</button>
+      <a class="boton borde" id="ver" href="/torneos/llaves" target="_blank" rel="noopener">Ver página pública</a>
+    </div>
+    <p class="estado-guardado" id="estado" role="status"></p>
+    <div class="error-general" id="aviso" role="alert" hidden></div>
+
+    <h2>Cruces de la primera ronda</h2>
+    <p class="vacio">Escribí o corregí los nombres. Un lugar vacío es un pase libre para el rival.</p>
+    <datalist id="inscriptos"></datalist>
+    <div class="cruces" id="cruces"></div>
+
+    <h2>Resultados</h2>
+    <p class="vacio">Tocá el nombre del ganador de cada partido y pasa a la ronda siguiente. Tocalo de nuevo para deshacerlo.</p>
+  </div>
+</div>
+<div class="llave-scroll" id="llave" hidden></div>
+
+<script type="module">
+import { TORNEOS } from "/torneos/datos.js";
+import { htmlLlave, limpiarResultados, llaveVacia, nombresRondas, ubicar } from "/torneos/llaves/llave.js";
+
+const $ = (id) => document.getElementById(id);
+const esc = (v) => String(v).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+const hora = () => new Date().toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit", hour12: false });
+let clave = "";
+let llaves = {};
+let inscriptos = [];
+let torneo = TORNEOS[0].id;
+let llave = llaveVacia();
+let temporizador = null;
+
+try { clave = sessionStorage.getItem("ig-clave") ?? ""; } catch {}
+
+async function api(ruta, opciones = {}) {
+  const r = await fetch(ruta, { ...opciones, cache: "no-store", headers: { "Content-Type": "application/json", Authorization: `Bearer ${clave}` } });
+  const d = await r.json();
+  if (!r.ok) throw new Error(d.error ?? "Error inesperado.");
+  return d;
+}
+
+function avisar(texto) {
+  $("aviso").textContent = texto;
+  $("aviso").hidden = !texto;
+}
+
+function pintarCruces() {
+  const nombres = nombresRondas(llave.tamano);
+  let html = "";
+  for (let i = 0; i < llave.tamano / 2; i++) {
+    const lugar = (j) => `<input data-lugar="${j}" value="${esc(llave.participantes[j])}" list="inscriptos" placeholder="Pase libre" aria-label="Partido ${i + 1}, lugar ${j % 2 + 1}" maxlength="40">`;
+    html += `<div class="cruce"><span>Partido ${i + 1}</span>${lugar(2 * i)}<b>vs</b>${lugar(2 * i + 1)}</div>`;
+  }
+  $("cruces").innerHTML = html;
+  $("tamano").value = String(llave.tamano);
+  $("ver").href = `/torneos/llaves?t=${torneo}`;
+  $("sortear").textContent = "Sortear inscriptos";
+  delete $("sortear").dataset.confirmar;
+}
+
+function pintarLlave() {
+  const scroll = $("llave").scrollLeft;
+  $("llave").innerHTML = htmlLlave(llave, { editable: true });
+  $("llave").scrollLeft = scroll;
+}
+
+function guardar() {
+  clearTimeout(temporizador);
+  $("estado").textContent = "Guardando…";
+  temporizador = setTimeout(async () => {
+    try {
+      await api("/api/llaves", { method: "PUT", body: JSON.stringify({ torneo, datos: llave }) });
+      llaves[torneo] = { datos: structuredClone(llave) };
+      $("estado").textContent = `Guardado y publicado a las ${hora()}.`;
+      avisar("");
+    } catch (e) {
+      $("estado").textContent = "";
+      avisar(`No se guardó: ${e.message} Volvé a intentar con el próximo cambio.`);
+    }
+  }, 600);
+}
+
+function cambio() {
+  limpiarResultados(llave);
+  pintarLlave();
+  guardar();
+}
+
+function elegirTorneo(id) {
+  torneo = id;
+  llave = llaves[id] ? structuredClone(llaves[id].datos) : llaveVacia();
+  const propios = inscriptos.filter((x) => x.torneo_id === id).map((x) => x.participante);
+  $("inscriptos").innerHTML = propios.map((n) => `<option value="${esc(n)}">`).join("");
+  $("estado").textContent = llaves[id] ? "" : `Todavía no hay llave publicada. Hay ${propios.length} inscriptos para sortear.`;
+  avisar("");
+  pintarCruces();
+  pintarLlave();
+}
+
+async function entrar() {
+  const [publicas, admin] = await Promise.all([fetch("/api/llaves", { cache: "no-store" }).then((r) => r.json()), api("/api/admin")]);
+  llaves = publicas.llaves ?? {};
+  inscriptos = admin.inscripciones;
+  try { sessionStorage.setItem("ig-clave", clave); } catch {}
+  $("torneo").innerHTML = TORNEOS.map((t) => `<option value="${t.id}">${esc(t.titulo)}</option>`).join("");
+  $("acceso").hidden = true;
+  $("panel").hidden = false;
+  $("llave").hidden = false;
+  elegirTorneo(torneo);
+}
+
+function mezclar(lista) {
+  const a = [...lista];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = crypto.getRandomValues(new Uint32Array(1))[0] % (i + 1);
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+$("acceso").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  clave = $("clave").value;
+  try {
+    await entrar();
+  } catch (err) {
+    $("error").textContent = err.message;
+    $("error").hidden = false;
+  }
+});
+
+$("torneo").addEventListener("change", (e) => elegirTorneo(e.target.value));
+
+$("tamano").addEventListener("change", (e) => {
+  const nuevo = Number(e.target.value);
+  const nombres = llave.participantes.filter((n) => n.trim());
+  if (nombres.length > nuevo) {
+    avisar(`Hay ${nombres.length} participantes cargados y esa ronda tiene ${nuevo} lugares. Borrá algunos o elegí una ronda más grande.`);
+    e.target.value = String(llave.tamano);
+    return;
+  }
+  llave = { ...llave, tamano: nuevo, participantes: ubicar(nombres, nuevo), ganadores: {}, marcadores: {} };
+  avisar("");
+  pintarCruces();
+  cambio();
+});
+
+$("sortear").addEventListener("click", (e) => {
+  const b = e.currentTarget;
+  const nombres = inscriptos.filter((x) => x.torneo_id === torneo).map((x) => x.participante);
+  if (!nombres.length) return avisar("Este torneo todavía no tiene inscriptos.");
+  if (nombres.length > llave.tamano) return avisar(`Hay ${nombres.length} inscriptos y la llave tiene ${llave.tamano} lugares. Elegí una ronda más grande.`);
+  const hayDatos = llave.participantes.some((n) => n.trim()) || Object.keys(llave.ganadores).length;
+  if (hayDatos && !b.dataset.confirmar) {
+    b.dataset.confirmar = "1";
+    b.textContent = "¿Seguro? Se rehace la llave. Tocá de nuevo";
+    setTimeout(() => { if (b.dataset.confirmar) { delete b.dataset.confirmar; b.textContent = "Sortear inscriptos"; } }, 5000);
+    return;
+  }
+  llave = { ...llave, participantes: ubicar(mezclar(nombres), llave.tamano), ganadores: {}, marcadores: {} };
+  avisar("");
+  pintarCruces();
+  cambio();
+});
+
+$("cruces").addEventListener("change", (e) => {
+  const input = e.target.closest("[data-lugar]");
+  if (!input) return;
+  llave.participantes[Number(input.dataset.lugar)] = input.value.trim().replace(/\s+/g, " ");
+  cambio();
+});
+
+$("llave").addEventListener("click", (e) => {
+  const b = e.target.closest("button[data-clave]");
+  if (!b) return;
+  const { clave: c, nombre } = b.dataset;
+  if (llave.ganadores[c] === nombre) delete llave.ganadores[c];
+  else llave.ganadores[c] = nombre;
+  cambio();
+});
+
+$("llave").addEventListener("change", (e) => {
+  const input = e.target.closest("input.marcador");
+  if (!input) return;
+  const v = input.value.trim();
+  if (v) llave.marcadores[input.dataset.clave] = v;
+  else delete llave.marcadores[input.dataset.clave];
+  cambio();
+});
+
+if (clave) entrar().catch(() => { clave = ""; });
+</script>
+</body>
+</html>

@@ -121,3 +121,46 @@ tr:last-child td{border-bottom:0}
 .quitar{background:none;border:1px solid var(--ceniza);color:var(--hueso);padding:6px 10px;cursor:pointer;font:600 14px var(--texto)}
 .quitar:hover{border-color:var(--rojo);color:var(--rojo)}
 .vacio{color:var(--piedra)}
+
+/* Llaves eliminatorias */
+.llaves-pagina h1{font:800 clamp(56px,10vw,104px)/.9 var(--display);text-transform:uppercase;margin-bottom:20px}
+.pestanas{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.pestanas button{min-height:44px;padding:8px 18px;background:var(--carbon);border:1px solid var(--ceniza);color:var(--hueso);font:800 21px/1 var(--display);text-transform:uppercase;cursor:pointer}
+.pestanas button[aria-selected=true]{background:linear-gradient(180deg,var(--fuego),var(--ascua));border-color:var(--ascua);color:#000}
+.llave-info{color:var(--piedra);margin-bottom:20px}
+.llave-pie{color:var(--piedra);font-size:15px;padding-block:8px 48px}
+.llave-scroll{overflow-x:auto;padding:4px max(16px,calc((100vw - 1120px)/2)) 16px;-webkit-overflow-scrolling:touch}
+.llave-scroll:focus-visible{outline-offset:-2px}
+.llave{display:grid;grid-template-columns:repeat(var(--cols),minmax(176px,1fr));column-gap:28px;min-width:calc(var(--cols) * 204px)}
+.ronda{display:flex;flex-direction:column;min-width:0}
+.ronda h3{font:800 21px/1 var(--display);text-transform:uppercase;color:var(--piedra);height:1.3em;margin:0 0 10px;white-space:nowrap}
+.campeon h3{color:var(--fuego)}
+.partidos{flex:1;display:flex;flex-direction:column}
+.par{flex:2;display:flex;flex-direction:column;position:relative}
+.celda{flex:1;display:flex;align-items:center;padding-block:5px;position:relative}
+.partido{width:100%;background:var(--carbon);border:1px solid var(--ceniza);position:relative}
+.partido.nulo{opacity:.45}
+.lado{display:block;width:100%;min-height:36px;padding:8px 10px;text-align:left;font:600 15px/1.25 var(--texto);color:var(--hueso);background:none;border:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lado+.lado{border-top:1px solid var(--ceniza)}
+.lado.pendiente{color:#948980;font-weight:400}
+.lado.perdio{color:#948980}
+.lado.gano{color:var(--fuego);background:linear-gradient(90deg,rgba(255,122,20,.24),transparent 85%);box-shadow:inset 3px 0 var(--ascua)}
+.campeon .lado{font:800 24px/1.1 var(--display);text-transform:uppercase;padding-block:12px}
+button.lado{cursor:pointer}
+button.lado:hover{background-color:#241b15}
+span.marcador{display:block;padding:4px 10px;border-top:1px solid var(--ceniza);color:var(--piedra);font-size:14px}
+input.marcador{display:block;width:100%;padding:6px 10px;background:var(--negro);border:0;border-top:1px solid var(--ceniza);color:var(--hueso);font:400 14px var(--texto)}
+.par::after{content:"";position:absolute;right:-15px;top:25%;bottom:25%;border-right:2px solid var(--ceniza)}
+.par .celda::after,.ronda:not(.campeon) .partidos>.celda::after{content:"";position:absolute;right:-15px;top:50%;width:15px;border-top:2px solid var(--ceniza)}
+.sigue .celda::before{content:"";position:absolute;left:-14px;top:50%;width:14px;border-top:2px solid var(--ceniza)}
+
+/* Editor de llaves */
+.editor-controles{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:4px 16px;max-width:720px}
+.campo select{width:100%;min-height:48px;padding:10px 12px;background:var(--negro);border:1px solid #6b5d53;color:var(--hueso);font:400 17px var(--texto)}
+.estado-guardado{color:var(--piedra);min-height:1.55em;margin-block:6px}
+.cruces{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px;margin-top:12px}
+.cruce{display:grid;grid-template-columns:1fr auto 1fr;gap:6px;align-items:center;background:var(--carbon);border:1px solid var(--ceniza);padding:10px}
+.cruce span{grid-column:1/-1;color:var(--piedra);font-size:14px;font-weight:600}
+.cruce b{color:var(--piedra);font-weight:400;font-size:14px}
+.cruce input{min-width:0;min-height:42px;padding:8px 10px;background:var(--negro);border:1px solid #6b5d53;color:var(--hueso);font:400 16px var(--texto)}
+.admin .acciones a.boton{text-decoration:none}

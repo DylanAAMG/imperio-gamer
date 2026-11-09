@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Llaves | Imperio Gamer</title>
+<meta name="description" content="Cruces y resultados de los torneos de Imperio Gamer.">
+<meta name="theme-color" content="#000000">
+<link rel="icon" href="/torneos/img/favicon.png">
+<meta property="og:title" content="Llaves de los torneos | Imperio Gamer">
+<meta property="og:description" content="Seguí los cruces y resultados de cada torneo.">
+<meta property="og:image" content="https://imperio-gamer.vercel.app/torneos/img/og.jpg">
+<link rel="preload" href="/torneos/fonts/big-shoulders-display-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/torneos/estilos.css">
+</head>
+<body>
+<div class="envoltura llaves-pagina">
+  <div class="barra"><a href="/torneos">Ver todos los torneos</a></div>
+  <h1>Llaves</h1>
+  <div class="pestanas" id="pestanas" role="tablist" aria-label="Torneo"></div>
+  <p class="llave-info" id="info"></p>
+</div>
+<div class="llave-scroll" id="llave" tabindex="0" aria-label="Llave del torneo"></div>
+<div class="envoltura"><p class="llave-pie" id="pie"></p></div>
+<script type="module">
+import { TORNEOS } from "/torneos/datos.js";
+import { htmlLlave } from "/torneos/llaves/llave.js";
+
+const $ = (id) => document.getElementById(id);
+const hora = (v) => new Date(v).toLocaleTimeString("es-AR", { timeZone: "America/Argentina/Buenos_Aires", hour: "2-digit", minute: "2-digit", hour12: false });
+let llaves = {};
+let elegido = new URLSearchParams(location.search).get("t");
+let firma = "";
+
+function pintar() {
+  const disponibles = TORNEOS.filter((t) => llaves[t.id]);
+  if (!disponibles.length) {
+    $("pestanas").innerHTML = "";
+    $("info").textContent = "Las llaves se publican cuando arranca cada torneo.";
+    $("llave").innerHTML = "";
+    $("pie").textContent = "";
+    return;
+  }
+  if (!disponibles.some((t) => t.id === elegido)) elegido = disponibles[0].id;
+  $("pestanas").innerHTML = disponibles
+    .map((t) => `<button type="button" role="tab" data-t="${t.id}" aria-selected="${t.id === elegido}">${t.titulo}</button>`)
+    .join("");
+  const t = TORNEOS.find((x) => x.id === elegido);
+  const l = llaves[elegido];
+  $("info").textContent = `${t.dia} ${t.numero} de noviembre. Partido único: el que gana pasa de ronda.`;
+  $("llave").innerHTML = htmlLlave(l.datos);
+  $("pie").textContent = `Actualizado a las ${hora(l.actualizado)}. La página se actualiza sola.`;
+}
+
+async function cargar() {
+  try {
+    const r = await fetch("/api/llaves", { cache: "no-store" });
+    if (!r.ok) throw new Error();
+    const d = await r.json();
+    const nueva = JSON.stringify(d.llaves);
+    if (nueva === firma) return;
+    firma = nueva;
+    llaves = d.llaves;
+    pintar();
+  } catch {
+    if (!firma) $("info").textContent = "No se pudieron cargar las llaves. Recargá la página en unos minutos.";
+  }
+}
+
+$("pestanas").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-t]");
+  if (!b) return;
+  elegido = b.dataset.t;
+  history.replaceState(null, "", `?t=${elegido}`);
+  pintar();
+});
+
+cargar();
+setInterval(cargar, 30000);
+</script>
+</body>
+</html>

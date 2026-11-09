@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sorteos | Imperio Gamer</title>
+<meta name="description" content="Resultados de los sorteos de Imperio Gamer: cruces, equipos y ganadores.">
+<meta name="theme-color" content="#000000">
+<link rel="icon" href="/torneos/img/favicon.png">
+<meta property="og:title" content="Sorteos | Imperio Gamer">
+<meta property="og:description" content="Mirá en vivo los cruces, equipos y ganadores de cada sorteo.">
+<meta property="og:image" content="https://imperio-gamer.vercel.app/torneos/img/og.jpg">
+<link rel="preload" href="/torneos/fonts/big-shoulders-display-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/torneos/estilos.css">
+</head>
+<body>
+<div class="envoltura llaves-pagina">
+  <div class="barra"><a href="/torneos">Ver los torneos</a></div>
+  <h1>Sorteos</h1>
+  <div class="pestanas" id="pestanas" role="tablist" aria-label="Juego"></div>
+  <h2 class="s-titulo" id="titulo"></h2>
+  <p class="llave-info" id="info"></p>
+  <div id="resultado" aria-live="polite"></div>
+  <p class="llave-pie" id="pie"></p>
+</div>
+<script type="module">
+import { JUEGOS, htmlResultado, resumen } from "/torneos/sorteo/sorteo.js";
+
+const $ = (id) => document.getElementById(id);
+const hora = (v) => new Date(v).toLocaleTimeString("es-AR", { timeZone: "America/Argentina/Buenos_Aires", hour: "2-digit", minute: "2-digit", hour12: false });
+let sorteos = {};
+let elegido = new URLSearchParams(location.search).get("j");
+let firma = "";
+let vistos = null;
+
+function pintar(animar = false) {
+  const disponibles = JUEGOS.filter((j) => sorteos[j.id]);
+  if (!disponibles.length) {
+    $("pestanas").innerHTML = "";
+    $("titulo").textContent = "";
+    $("info").textContent = "Todavía no hay sorteos publicados. Esta página se actualiza sola.";
+    $("resultado").innerHTML = "";
+    $("pie").textContent = "";
+    return;
+  }
+  if (!disponibles.some((j) => j.id === elegido)) elegido = disponibles[0].id;
+  $("pestanas").innerHTML = disponibles
+    .map((j) => `<button type="button" role="tab" data-j="${j.id}" aria-selected="${j.id === elegido}">${j.id === "otro" ? "Otro" : j.nombre}</button>`)
+    .join("");
+  const s = sorteos[elegido];
+  $("titulo").textContent = s.datos.titulo;
+  $("info").textContent = resumen(s.datos);
+  $("resultado").innerHTML = htmlResultado(s.datos);
+  $("resultado").classList.toggle("animar", animar);
+  $("pie").textContent = `Sorteado a las ${hora(s.actualizado)}. La página se actualiza sola.`;
+}
+
+async function cargar() {
+  try {
+    const r = await fetch("/api/sorteos", { cache: "no-store" });
+    if (!r.ok) throw new Error();
+    const d = await r.json();
+    const nueva = JSON.stringify(d.sorteos);
+    if (nueva === firma) return;
+    firma = nueva;
+    const antes = vistos;
+    sorteos = d.sorteos;
+    vistos = Object.fromEntries(Object.entries(sorteos).map(([k, v]) => [k, v.actualizado]));
+    // Si llega un sorteo nuevo mientras la página está abierta, se muestra ese y se revela de a uno.
+    const nuevo = antes && Object.keys(vistos).find((k) => vistos[k] !== antes[k]);
+    if (nuevo) elegido = nuevo;
+    pintar(Boolean(nuevo));
+  } catch {
+    if (!firma) $("info").textContent = "No se pudieron cargar los sorteos. Recargá la página en unos minutos.";
+  }
+}
+
+$("pestanas").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-j]");
+  if (!b) return;
+  elegido = b.dataset.j;
+  history.replaceState(null, "", `?j=${elegido}`);
+  pintar();
+});
+
+cargar();
+setInterval(cargar, 5000);
+</script>
+</body>
+</html>

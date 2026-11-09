@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Hacer un sorteo | Imperio Gamer</title>
+<link rel="icon" href="/torneos/img/favicon.png">
+<link rel="stylesheet" href="/torneos/estilos.css">
+</head>
+<body>
+<div class="envoltura admin">
+  <div class="barra"><a href="/torneos/admin">Volver a inscripciones</a></div>
+  <h1>Hacer un sorteo</h1>
+  <form id="acceso" class="acceso">
+    <div class="campo">
+      <label for="clave">Contraseña</label>
+      <input id="clave" type="password" required autocomplete="current-password">
+      <span class="error" id="error" hidden></span>
+    </div>
+    <button class="boton" type="submit">Entrar</button>
+  </form>
+
+  <form id="panel" class="s-form" hidden novalidate>
+    <div class="editor-controles">
+      <div class="campo">
+        <label for="juego">Juego</label>
+        <select id="juego"></select>
+      </div>
+      <div class="campo">
+        <label for="titulo">Título que se ve en la página</label>
+        <input id="titulo" maxlength="60" required>
+      </div>
+    </div>
+
+    <fieldset>
+      <legend>Qué se sortea</legend>
+      <label class="opcion"><input type="radio" name="modo" value="equipos" checked> Equipos y cruces</label>
+      <label class="opcion"><input type="radio" name="modo" value="ganadores"> Ganadores, para premios</label>
+    </fieldset>
+
+    <div class="editor-controles" id="opciones-equipos">
+      <div class="campo">
+        <label for="por-equipo">Jugadores por equipo</label>
+        <small id="ayuda-por-equipo">Con 1, cada jugador juega solo.</small>
+        <input id="por-equipo" type="number" min="1" max="10" value="1" aria-describedby="ayuda-por-equipo">
+      </div>
+      <label class="opcion opcion-sola"><input type="checkbox" id="cruces" checked> Armar cruces: quién juega contra quién</label>
+    </div>
+    <div class="editor-controles" id="opciones-ganadores" hidden>
+      <div class="campo">
+        <label for="cantidad">Cantidad de ganadores</label>
+        <input id="cantidad" type="number" min="1" max="500" value="1">
+      </div>
+    </div>
+
+    <div class="campo">
+      <label for="nombres">Nombres</label>
+      <small id="ayuda-nombres">Uno por renglón. Podés pegar una lista entera.</small>
+      <textarea id="nombres" rows="10" aria-describedby="ayuda-nombres" spellcheck="false"></textarea>
+      <span class="s-contador" id="contador"></span>
+    </div>
+    <div class="acciones">
+      <select id="origen" aria-label="Torneo del que traer inscriptos"></select>
+      <button class="boton borde" id="traer" type="button">Agregar inscriptos</button>
+    </div>
+
+    <div class="error-general" id="aviso" role="alert" hidden></div>
+    <div class="acciones">
+      <button class="boton" type="submit" id="sortear">Sortear y publicar</button>
+      <a class="boton borde" id="ver" href="/torneos/sorteo" target="_blank" rel="noopener">Ver página pública</a>
+      <button class="boton borde" type="button" id="despublicar" hidden>Despublicar</button>
+    </div>
+    <p class="estado-guardado" id="estado" role="status"></p>
+
+    <h2 id="titulo-resultado" hidden>Publicado ahora</h2>
+    <div id="resultado"></div>
+  </form>
+</div>
+
+<script type="module">
+import { TORNEOS } from "/torneos/datos.js";
+import { JUEGOS, MAX_NOMBRES, htmlResultado, resumen, sortear } from "/torneos/sorteo/sorteo.js";
+
+const $ = (id) => document.getElementById(id);
+const esc = (v) => String(v).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+const hora = () => new Date().toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit", hour12: false });
+let clave = "";
+let sorteos = {};
+let inscriptos = [];
+
+try { clave = sessionStorage.getItem("ig-clave") ?? ""; } catch {}
+
+async function api(ruta, opciones = {}) {
+  const r = await fetch(ruta, { ...opciones, cache: "no-store", headers: { "Content-Type": "application/json", Authorization: `Bearer ${clave}` } });
+  const d = await r.json();
+  if (!r.ok) throw new Error(d.error ?? "Error inesperado.");
+  return d;
+}
+
+const avisar = (t) => { $("aviso").textContent = t; $("aviso").hidden = !t; };
+const modo = () => document.querySelector('[name="modo"]:checked').value;
+
+// Limpia espacios y saca repetidos (sin importar mayúsculas), manteniendo el primero.
+function leerNombres() {
+  const vistos = new Set();
+  const nombres = [];
+  let repetidos = 0;
+  for (const linea of $("nombres").value.split("\n")) {
+    const n = linea.trim().replace(/\s+/g, " ").slice(0, 40);
+    if (!n) continue;
+    const k = n.toLowerCase();
+    if (vistos.has(k)) { repetidos++; continue; }
+    vistos.add(k);
+    nombres.push(n);
+  }
+  return { nombres, repetidos };
+}
+
+function contar() {
+  const { nombres, repetidos } = leerNombres();
+  let t = `${nombres.length} ${nombres.length === 1 ? "nombre" : "nombres"}`;
+  if (repetidos) t += `. ${repetidos === 1 ? "Hay 1 repetido, que no se cuenta" : `Hay ${repetidos} repetidos, que no se cuentan`}.`;
+  if (modo() === "equipos") {
+    const n = Number($("por-equipo").value) || 1;
+    const sobran = nombres.length % n;
+    if (n > 1 && nombres.length) t += `${repetidos ? "" : "."} Alcanza para ${Math.floor(nombres.length / n)} equipos${sobran ? ` y sobran ${sobran}` : ""}.`;
+  }
+  $("contador").textContent = t;
+}
+
+function mostrarModo() {
+  $("opciones-equipos").hidden = modo() !== "equipos";
+  $("opciones-ganadores").hidden = modo() !== "ganadores";
+  contar();
+}
+
+function mostrarPublicado() {
+  const s = sorteos[$("juego").value];
+  $("titulo-resultado").hidden = !s;
+  $("despublicar").hidden = !s;
+  $("resultado").innerHTML = s ? `<p class="vacio">${esc(resumen(s.datos))}</p>${htmlResultado(s.datos)}` : "";
+}
+
+function elegirJuego() {
+  const j = JUEGOS.find((x) => x.id === $("juego").value);
+  const s = sorteos[j.id];
+  if (s) {
+    const d = s.datos;
+    $("titulo").value = d.titulo;
+    document.querySelector(`[name="modo"][value="${d.modo}"]`).checked = true;
+    $("por-equipo").value = d.porEquipo;
+    $("cruces").checked = d.cruces;
+    $("cantidad").value = d.cantidad;
+    $("nombres").value = d.nombres.join("\n");
+  } else {
+    $("titulo").value = j.id === "otro" ? "" : `Sorteo ${j.nombre}`;
+    $("por-equipo").value = j.porEquipo;
+    $("nombres").value = "";
+  }
+  $("ver").href = `/torneos/sorteo?j=${j.id}`;
+  $("estado").textContent = "";
+  avisar("");
+  mostrarModo();
+  mostrarPublicado();
+}
+
+async function entrar() {
+  const [publicos, admin] = await Promise.all([fetch("/api/sorteos", { cache: "no-store" }).then((r) => r.json()), api("/api/admin")]);
+  sorteos = publicos.sorteos ?? {};
+  inscriptos = admin.inscripciones;
+  try { sessionStorage.setItem("ig-clave", clave); } catch {}
+  $("juego").innerHTML = JUEGOS.map((j) => `<option value="${j.id}">${esc(j.nombre)}</option>`).join("");
+  $("origen").innerHTML = TORNEOS.map((t) => `<option value="${t.id}">${esc(t.titulo)}</option>`).join("");
+  $("acceso").hidden = true;
+  $("panel").hidden = false;
+  elegirJuego();
+}
+
+$("acceso").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  clave = $("clave").value;
+  try { await entrar(); } catch (err) { $("error").textContent = err.message; $("error").hidden = false; }
+});
+
+$("juego").addEventListener("change", elegirJuego);
+document.querySelectorAll('[name="modo"]').forEach((r) => r.addEventListener("change", mostrarModo));
+$("por-equipo").addEventListener("input", contar);
+$("nombres").addEventListener("input", contar);
+
+$("traer").addEventListener("click", () => {
+  const propios = inscriptos.filter((x) => x.torneo_id === $("origen").value);
+  if (!propios.length) return avisar("Ese torneo todavía no tiene inscriptos.");
+  // De los torneos por equipo se traen los jugadores, uno por uno.
+  const nuevos = propios.flatMap((x) => (x.jugadores?.length ? x.jugadores : [x.participante]));
+  const actual = $("nombres").value.trim();
+  $("nombres").value = (actual ? actual + "\n" : "") + nuevos.join("\n");
+  avisar("");
+  contar();
+});
+
+$("panel").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const juego = $("juego").value;
+  const { nombres } = leerNombres();
+  const datos = {
+    titulo: $("titulo").value.trim() || "Sorteo",
+    modo: modo(),
+    porEquipo: Math.min(10, Math.max(1, Math.trunc(Number($("por-equipo").value)) || 1)),
+    cruces: $("cruces").checked,
+    cantidad: Math.max(1, Math.trunc(Number($("cantidad").value)) || 1),
+    nombres,
+  };
+  if (!nombres.length) return avisar("Cargá al menos un nombre.");
+  if (nombres.length > MAX_NOMBRES) return avisar(`El máximo es ${MAX_NOMBRES} nombres por sorteo.`);
+  if (datos.modo === "ganadores" && datos.cantidad > nombres.length) return avisar(`Hay ${nombres.length} nombres y pediste ${datos.cantidad} ganadores.`);
+  if (datos.modo === "equipos" && nombres.length < datos.porEquipo) return avisar(`Con ${nombres.length} nombres no alcanza para un equipo de ${datos.porEquipo}.`);
+  datos.resultado = sortear(datos);
+  $("sortear").disabled = true;
+  $("estado").textContent = "Publicando…";
+  try {
+    const r = await api("/api/sorteos", { method: "PUT", body: JSON.stringify({ juego, datos }) });
+    sorteos[juego] = { datos, actualizado: r.actualizado };
+    $("estado").textContent = `Sorteado y publicado a las ${hora()}. Si lo volvés a sortear, se reemplaza.`;
+    $("sortear").textContent = "Volver a sortear";
+    avisar("");
+    mostrarPublicado();
+  } catch (err) {
+    $("estado").textContent = "";
+    avisar(`No se publicó: ${err.message}`);
+  }
+  $("sortear").disabled = false;
+});
+
+$("despublicar").addEventListener("click", async (e) => {
+  const b = e.currentTarget;
+  if (!b.dataset.confirmar) {
+    b.dataset.confirmar = "1";
+    b.textContent = "¿Seguro? Tocá de nuevo";
+    setTimeout(() => { delete b.dataset.confirmar; b.textContent = "Despublicar"; }, 5000);
+    return;
+  }
+  delete b.dataset.confirmar;
+  b.textContent = "Despublicar";
+  try {
+    await api(`/api/sorteos?juego=${$("juego").value}`, { method: "DELETE" });
+    delete sorteos[$("juego").value];
+    $("estado").textContent = "Sorteo despublicado.";
+    $("sortear").textContent = "Sortear y publicar";
+    mostrarPublicado();
+  } catch (err) {
+    avisar(`No se despublicó: ${err.message}`);
+  }
+});
+
+if (clave) entrar().catch(() => { clave = ""; });
+</script>
+</body>
+</html>

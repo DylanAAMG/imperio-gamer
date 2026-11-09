@@ -164,3 +164,39 @@ input.marcador{display:block;width:100%;padding:6px 10px;background:var(--negro)
 .cruce b{color:var(--piedra);font-weight:400;font-size:14px}
 .cruce input{min-width:0;min-height:42px;padding:8px 10px;background:var(--negro);border:1px solid #6b5d53;color:var(--hueso);font:400 16px var(--texto)}
 .admin .acciones a.boton{text-decoration:none}
+
+/* Sorteos */
+.s-titulo{font:800 clamp(34px,5vw,52px)/1 var(--display);text-transform:uppercase;margin-bottom:6px}
+.s-cruces{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr));gap:12px}
+.s-cruce{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;padding:12px;background:var(--carbon);border:1px solid var(--ceniza)}
+.s-cruce-equipos{grid-column:1/-1;align-items:stretch}
+.s-num{grid-column:1/-1;color:var(--piedra);font-size:14px;font-weight:600}
+.s-cruce>b{font:800 22px/1 var(--display);color:var(--ascua);text-transform:uppercase;align-self:center}
+.s-lado{font:800 clamp(22px,3vw,28px)/1.05 var(--display);text-transform:uppercase;overflow-wrap:anywhere}
+.s-cruce .s-lado:last-child{text-align:right}
+.s-libre{color:var(--piedra)}
+.s-equipos{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,230px),1fr));gap:12px}
+.s-equipos .s-lado{padding:14px;background:var(--carbon);border:1px solid var(--ceniza)}
+.s-equipo{padding:12px 14px;background:var(--carbon);border:1px solid var(--ceniza);border-top:3px solid var(--ascua)}
+.s-cruce .s-equipo{background:var(--negro)}
+.s-equipo h4{margin:0 0 6px;font:800 24px/1 var(--display);text-transform:uppercase;color:var(--fuego)}
+.s-equipo ul{margin:0;padding:0;list-style:none}
+.s-equipo li{padding:3px 0;overflow-wrap:anywhere}
+.s-ganadores{margin:0;padding:0;list-style:none;counter-reset:g;display:grid;gap:8px;max-width:640px}
+.s-ganadores li{counter-increment:g;display:flex;gap:16px;align-items:baseline;padding:12px 16px;background:var(--carbon);border:1px solid var(--ceniza);font:800 clamp(26px,4vw,36px)/1.05 var(--display);text-transform:uppercase;overflow-wrap:anywhere}
+.s-ganadores li::before{content:counter(g) "°";color:var(--ascua);min-width:1.6em}
+.s-sobrantes{margin-top:16px;color:var(--piedra)}
+@media (prefers-reduced-motion:no-preference){
+  .animar .revela{animation:revelar .45s ease-out backwards;animation-delay:calc(min(var(--k),40) * 140ms)}
+  @keyframes revelar{from{opacity:0;transform:translateY(10px)}}
+}
+.s-form textarea{width:100%;padding:10px 12px;background:var(--negro);border:1px solid #6b5d53;color:var(--hueso);font:400 17px/1.45 var(--texto);resize:vertical}
+.s-form textarea:focus{outline:2px solid var(--fuego);outline-offset:0}
+.s-contador{color:var(--piedra);font-size:15px}
+.s-form fieldset{margin:8px 0 16px}
+.s-form legend{font-size:24px}
+.opcion{display:flex;gap:10px;align-items:center;min-height:40px;cursor:pointer}
+.opcion input{width:20px;height:20px;accent-color:var(--ascua)}
+.opcion-sola{align-self:end;margin-bottom:15px}
+.s-form .acciones select{min-height:52px;padding:8px 12px;background:var(--negro);border:1px solid #6b5d53;color:var(--hueso);font:400 16px var(--texto);max-width:100%}
+#resultado .vacio{margin-bottom:12px}

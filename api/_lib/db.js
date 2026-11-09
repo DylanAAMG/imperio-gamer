@@ -46,6 +46,11 @@ const ESQUEMA = [
      datos jsonb NOT NULL,
      actualizado timestamptz NOT NULL DEFAULT now()
    )`,
+  `CREATE TABLE IF NOT EXISTS sorteos (
+     juego text PRIMARY KEY,
+     datos jsonb NOT NULL,
+     actualizado timestamptz NOT NULL DEFAULT now()
+   )`,
 ];
 
 async function prepararEsquema() {
@@ -127,4 +132,29 @@ export async function guardarLlave(id, datos) {
     [id, JSON.stringify(datos)]
   );
   return filas[0].actualizado;
+}
+
+// Sorteos: uno publicado por juego. Al volver a sortear, se reemplaza.
+export async function leerSorteos() {
+  const filas = await consulta(`SELECT juego, datos, actualizado FROM sorteos`);
+  return Object.fromEntries(
+    filas.map((f) => [
+      f.juego,
+      { datos: typeof f.datos === "string" ? JSON.parse(f.datos) : f.datos, actualizado: f.actualizado },
+    ])
+  );
+}
+
+export async function guardarSorteo(juego, datos) {
+  const filas = await consulta(
+    `INSERT INTO sorteos (juego, datos) VALUES ($1, $2::jsonb)
+     ON CONFLICT (juego) DO UPDATE SET datos = EXCLUDED.datos, actualizado = now()
+     RETURNING actualizado`,
+    [juego, JSON.stringify(datos)]
+  );
+  return filas[0].actualizado;
+}
+
+export async function borrarSorteo(juego) {
+  await consulta(`DELETE FROM sorteos WHERE juego = $1`, [juego]);
 }

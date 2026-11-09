@@ -200,3 +200,7 @@ input.marcador{display:block;width:100%;padding:6px 10px;background:var(--negro)
 .opcion-sola{align-self:end;margin-bottom:15px}
 .s-form .acciones select{min-height:52px;padding:8px 12px;background:var(--negro);border:1px solid #6b5d53;color:var(--hueso);font:400 16px var(--texto);max-width:100%}
 #resultado .vacio{margin-bottom:12px}
+.envoltura .s-llave{padding:4px 0 16px}
+.s-subtitulo{font:800 30px/1 var(--display);text-transform:uppercase;margin:28px 0 12px}
+.s-pasar{margin-block:18px;padding:14px 16px;background:var(--carbon);border:1px solid var(--ceniza)}
+.s-pasar p{color:var(--piedra);margin-bottom:10px}

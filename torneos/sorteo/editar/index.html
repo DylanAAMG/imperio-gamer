@@ -73,6 +73,14 @@
     </div>
     <p class="estado-guardado" id="estado" role="status"></p>
 
+    <div class="s-pasar" id="pasar" hidden>
+      <p>¿Querés seguir este sorteo como torneo? Pasalo a la llave y marcá los ganadores desde <a href="/torneos/llaves/editar">Editar llaves</a>.</p>
+      <div class="acciones">
+        <select id="destino" aria-label="Torneo al que pasar la llave"></select>
+        <button class="boton borde" type="button" id="pasar-llave">Pasar a la llave</button>
+      </div>
+    </div>
+
     <h2 id="titulo-resultado" hidden>Publicado ahora</h2>
     <div id="resultado"></div>
   </form>
@@ -80,7 +88,7 @@
 
 <script type="module">
 import { TORNEOS } from "/torneos/datos.js";
-import { JUEGOS, MAX_NOMBRES, htmlResultado, resumen, sortear } from "/torneos/sorteo/sorteo.js";
+import { JUEGOS, MAX_NOMBRES, htmlResultado, llaveDeSorteo, resumen, sortear } from "/torneos/sorteo/sorteo.js";
 
 const $ = (id) => document.getElementById(id);
 const esc = (v) => String(v).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -138,6 +146,9 @@ function mostrarModo() {
 function mostrarPublicado() {
   const s = sorteos[$("juego").value];
   $("titulo-resultado").hidden = !s;
+  $("pasar").hidden = !(s && llaveDeSorteo(s.datos));
+  $("pasar-llave").textContent = "Pasar a la llave";
+  delete $("pasar-llave").dataset.confirmar;
   $("despublicar").hidden = !s;
   $("resultado").innerHTML = s ? `<p class="vacio">${esc(resumen(s.datos))}</p>${htmlResultado(s.datos)}` : "";
 }
@@ -171,6 +182,7 @@ async function entrar() {
   inscriptos = admin.inscripciones;
   try { sessionStorage.setItem("ig-clave", clave); } catch {}
   $("juego").innerHTML = JUEGOS.map((j) => `<option value="${j.id}">${esc(j.nombre)}</option>`).join("");
+  $("destino").innerHTML = TORNEOS.map((t) => `<option value="${t.id}">${esc(t.titulo)}</option>`).join("");
   $("origen").innerHTML = TORNEOS.map((t) => `<option value="${t.id}">${esc(t.titulo)}</option>`).join("");
   $("acceso").hidden = true;
   $("panel").hidden = false;
@@ -250,6 +262,30 @@ $("despublicar").addEventListener("click", async (e) => {
     mostrarPublicado();
   } catch (err) {
     avisar(`No se despublicó: ${err.message}`);
+  }
+});
+
+$("pasar-llave").addEventListener("click", async (e) => {
+  const b = e.currentTarget;
+  const s = sorteos[$("juego").value];
+  const llave = s && llaveDeSorteo(s.datos);
+  if (!llave) return;
+  const torneo = $("destino").value;
+  try {
+    const { llaves } = await fetch("/api/llaves", { cache: "no-store" }).then((r) => r.json());
+    if (llaves?.[torneo] && !b.dataset.confirmar) {
+      b.dataset.confirmar = "1";
+      b.textContent = "Ya hay una llave, se reemplaza. Tocá de nuevo";
+      setTimeout(() => { delete b.dataset.confirmar; b.textContent = "Pasar a la llave"; }, 5000);
+      return;
+    }
+    delete b.dataset.confirmar;
+    b.textContent = "Pasar a la llave";
+    await api("/api/llaves", { method: "PUT", body: JSON.stringify({ torneo, datos: llave }) });
+    $("estado").innerHTML = `Llave publicada. <a href="/torneos/llaves/editar">Marcá los ganadores acá</a>.`;
+    avisar("");
+  } catch (err) {
+    avisar(`No se pasó a la llave: ${err.message}`);
   }
 });
 

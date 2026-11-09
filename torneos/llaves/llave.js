@@ -6,7 +6,7 @@ const RONDAS = ["16avos de final", "Octavos de final", "Cuartos de final", "Semi
 
 export const nombresRondas = (tamano) => RONDAS.slice(RONDAS.length - Math.log2(tamano));
 
-export const llaveVacia = (tamano = 32) => ({
+export const llaveVacia = (tamano = 16) => ({
   tamano,
   participantes: Array(tamano).fill(""),
   ganadores: {},

@@ -1,4 +1,5 @@
 // Sorteos: lógica y dibujo compartidos por la página pública y el editor.
+import { htmlLlave, llaveVacia, ubicar } from "/torneos/llaves/llave.js";
 
 export const JUEGOS = [
   { id: "fifa", nombre: "FIFA 26", porEquipo: 1 },
@@ -49,7 +50,29 @@ function tarjetaEquipo(d, i, k) {
   return `<div class="s-equipo revela" style="--k:${k}"><h4>Equipo ${i + 1}</h4><ul>${miembros.map((m) => `<li>${esc(m)}</li>`).join("")}</ul></div>`;
 }
 
+// Con cruces, el sorteo se muestra como llave eliminatoria (hasta 32 participantes).
+export function llaveDeSorteo(d) {
+  if (d.modo !== "equipos" || !d.cruces) return null;
+  const nombres = d.resultado.equipos.map((e, i) => (d.porEquipo === 1 ? e[0] : `Equipo ${i + 1}`));
+  if (nombres.length < 2 || nombres.length > 32) return null;
+  let tamano = 4;
+  while (tamano < nombres.length) tamano *= 2;
+  return { ...llaveVacia(tamano), participantes: ubicar(nombres, tamano) };
+}
+
 export function htmlResultado(d) {
+  const llave = llaveDeSorteo(d);
+  if (llave) {
+    let html = `<div class="llave-scroll s-llave revela" style="--k:0" tabindex="0" aria-label="Llave del sorteo">${htmlLlave(llave)}</div>`;
+    if (d.porEquipo > 1) {
+      html += `<h3 class="s-subtitulo">Equipos</h3><div class="s-equipos">${d.resultado.equipos.map((_, i) => tarjetaEquipo(d, i, i + 1)).join("")}</div>`;
+    }
+    if (d.resultado.sobrantes?.length) {
+      html += `<p class="s-sobrantes">Sin equipo completo: ${d.resultado.sobrantes.map(esc).join(", ")}.</p>`;
+    }
+    return html;
+  }
+
   const r = d.resultado;
   let k = 0;
   let cuerpo = "";

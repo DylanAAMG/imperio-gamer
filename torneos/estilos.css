@@ -204,3 +204,6 @@ input.marcador{display:block;width:100%;padding:6px 10px;background:var(--negro)
 .s-subtitulo{font:800 30px/1 var(--display);text-transform:uppercase;margin:28px 0 12px}
 .s-pasar{margin-block:18px;padding:14px 16px;background:var(--carbon);border:1px solid var(--ceniza)}
 .s-pasar p{color:var(--piedra);margin-bottom:10px}
+.renombrar{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr)) auto;gap:4px 14px;align-items:end;max-width:820px;margin-top:14px}
+.renombrar .boton{margin-bottom:15px}
+@media (max-width:560px){.renombrar{grid-template-columns:1fr}}

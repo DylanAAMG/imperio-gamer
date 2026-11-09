@@ -51,6 +51,18 @@
 
     <h2>Resultados</h2>
     <p class="vacio">Tocá el nombre del ganador de cada partido y pasa a la ronda siguiente. Tocalo de nuevo para deshacerlo.</p>
+    <form class="renombrar" id="renombrar" novalidate>
+      <div class="campo">
+        <label for="ren-de">Cambiar el nombre de</label>
+        <select id="ren-de"></select>
+      </div>
+      <div class="campo">
+        <label for="ren-a">Nombre nuevo</label>
+        <input id="ren-a" maxlength="40" autocomplete="off" spellcheck="false">
+      </div>
+      <button class="boton borde" type="submit">Cambiar nombre</button>
+    </form>
+    <p class="vacio">El cambio se ve en todas las rondas y se mantienen los resultados.</p>
   </div>
 </div>
 <div class="llave-scroll" id="llave" hidden></div>
@@ -91,6 +103,7 @@ function pintarCruces() {
     html += `<div class="cruce"><span>Partido ${i + 1}</span>${lugar(2 * i)}<b>vs</b>${lugar(2 * i + 1)}</div>`;
   }
   $("cruces").innerHTML = html;
+  pintarRenombrar();
   $("tamano").value = String(llave.tamano);
   $("ver").href = `/torneos/llaves?t=${torneo}`;
   $("sortear").textContent = "Sortear inscriptos";
@@ -119,8 +132,30 @@ function guardar() {
   }, 600);
 }
 
+// Cambia un nombre en toda la llave: su lugar y los partidos que ya ganó.
+function renombrar(viejo, nuevo) {
+  if (!viejo || !nuevo || viejo === nuevo) return true;
+  const otro = llave.participantes.some((n) => n !== viejo && n.toLowerCase() === nuevo.toLowerCase());
+  if (otro) {
+    avisar(`Ya hay alguien llamado ${nuevo} en la llave.`);
+    return false;
+  }
+  llave.participantes = llave.participantes.map((n) => (n === viejo ? nuevo : n));
+  for (const k of Object.keys(llave.ganadores)) if (llave.ganadores[k] === viejo) llave.ganadores[k] = nuevo;
+  avisar("");
+  return true;
+}
+
+function pintarRenombrar() {
+  const nombres = llave.participantes.filter(Boolean).sort((a, b) => a.localeCompare(b, "es"));
+  $("ren-de").innerHTML = nombres.length
+    ? nombres.map((n) => `<option value="${esc(n)}">${esc(n)}</option>`).join("")
+    : `<option value="">No hay nombres cargados</option>`;
+}
+
 function cambio() {
   limpiarResultados(llave);
+  pintarRenombrar();
   pintarLlave();
   guardar();
 }
@@ -205,8 +240,30 @@ $("sortear").addEventListener("click", (e) => {
 $("cruces").addEventListener("change", (e) => {
   const input = e.target.closest("[data-lugar]");
   if (!input) return;
-  llave.participantes[Number(input.dataset.lugar)] = input.value.trim().replace(/\s+/g, " ");
+  const i = Number(input.dataset.lugar);
+  const viejo = llave.participantes[i];
+  const nuevo = input.value.trim().replace(/\s+/g, " ");
+  // Si se corrige un nombre (no se borra ni se pone uno donde no había), se mantienen sus resultados.
+  if (viejo && nuevo) {
+    if (!renombrar(viejo, nuevo)) {
+      input.value = viejo;
+      return;
+    }
+  } else llave.participantes[i] = nuevo;
   cambio();
+});
+
+$("renombrar").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const viejo = $("ren-de").value;
+  const nuevo = $("ren-a").value.trim().replace(/\s+/g, " ");
+  if (!viejo) return;
+  if (!nuevo) return avisar("Escribí el nombre nuevo.");
+  if (!renombrar(viejo, nuevo)) return;
+  $("ren-a").value = "";
+  pintarCruces();
+  cambio();
+  $("estado").textContent = `${viejo} ahora se llama ${nuevo}. Guardando…`;
 });
 
 $("llave").addEventListener("click", (e) => {

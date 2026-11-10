@@ -25,6 +25,7 @@
 </div>
 <script type="module">
 import { JUEGOS, htmlResultado, resumen } from "/torneos/sorteo/sorteo.js";
+import { crearRuleta } from "/torneos/sorteo/ruleta.js";
 
 const $ = (id) => document.getElementById(id);
 const hora = (v) => new Date(v).toLocaleTimeString("es-AR", { timeZone: "America/Argentina/Buenos_Aires", hour: "2-digit", minute: "2-digit", hour12: false });
@@ -32,8 +33,17 @@ let sorteos = {};
 let elegido = new URLSearchParams(location.search).get("j");
 let firma = "";
 let vistos = null;
+let girando = false;
+let pendiente = null;
+const espera = (ms) => new Promise((r) => setTimeout(r, ms));
+const sinMovimiento = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 function pintar(animar = false) {
+  // Mientras gira la ruleta no se redibuja; el cambio se muestra al terminar.
+  if (girando) {
+    pendiente = pendiente || animar;
+    return;
+  }
   const disponibles = JUEGOS.filter((j) => sorteos[j.id]);
   if (!disponibles.length) {
     $("pestanas").innerHTML = "";
@@ -50,9 +60,65 @@ function pintar(animar = false) {
   const s = sorteos[elegido];
   $("titulo").textContent = s.datos.titulo;
   $("info").textContent = resumen(s.datos);
-  $("resultado").innerHTML = htmlResultado(s.datos);
-  $("resultado").classList.toggle("animar", animar);
+  if (s.datos.modo === "ganadores") {
+    $("resultado").classList.remove("animar");
+    $("resultado").innerHTML = `<div class="s-premios">
+      <div class="ruleta">
+        <div class="ruleta-rueda"><canvas id="rueda" aria-hidden="true"></canvas><span class="ruleta-flecha" aria-hidden="true"></span></div>
+        <p class="ruleta-nombre" id="rueda-nombre" aria-hidden="true"></p>
+        <button class="boton borde" type="button" id="repetir">Girar de nuevo</button>
+      </div>
+      <div>${htmlResultado(s.datos)}</div>
+    </div>`;
+    prepararRuleta(s.datos, animar);
+  } else {
+    $("resultado").innerHTML = htmlResultado(s.datos);
+    $("resultado").classList.toggle("animar", animar);
+  }
   $("pie").textContent = `Sorteado a las ${hora(s.actualizado)}. La página se actualiza sola.`;
+}
+
+// "Girar de nuevo" repite la animación con los mismos ganadores: no vuelve a sortear.
+function prepararRuleta(d, animar) {
+  const rueda = crearRuleta($("rueda"), $("rueda-nombre"));
+  const items = [...document.querySelectorAll(".s-ganadores li")];
+  const ganadores = d.resultado.ganadores;
+
+  function fijo() {
+    rueda.nombres(d.nombres);
+    rueda.apuntar(ganadores[0]);
+    items.forEach((li) => (li.hidden = false));
+  }
+
+  async function girar() {
+    if (girando || !ganadores.length) return;
+    girando = true;
+    $("repetir").disabled = true;
+    items.forEach((li) => (li.hidden = true));
+    let quedan = [...d.nombres];
+    const ms = ganadores.length > 3 ? 3500 : 6000;
+    for (const [i, g] of ganadores.entries()) {
+      rueda.nombres(quedan);
+      await rueda.girarA(g, ms);
+      items[i].hidden = false;
+      items[i].classList.add("recien");
+      await espera(1200);
+      quedan = quedan.filter((n) => n !== g);
+    }
+    rueda.nombres(d.nombres);
+    rueda.apuntar(ganadores[0]);
+    girando = false;
+    if (document.getElementById("repetir")) $("repetir").disabled = false;
+    if (pendiente !== null) {
+      const a = pendiente;
+      pendiente = null;
+      pintar(a);
+    }
+  }
+
+  $("repetir").addEventListener("click", girar);
+  if (animar && !sinMovimiento) girar();
+  else fijo();
 }
 
 async function cargar() {

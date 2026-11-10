@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ruleta | Imperio Gamer</title>
+<meta name="description" content="Ruleta de sorteos de premios de Imperio Gamer.">
+<meta name="theme-color" content="#000000">
+<link rel="icon" href="/torneos/img/favicon.png">
+<meta property="og:title" content="Ruleta de premios | Imperio Gamer">
+<meta property="og:image" content="https://imperio-gamer.vercel.app/torneos/img/og.jpg">
+<link rel="preload" href="/torneos/fonts/big-shoulders-display-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/torneos/estilos.css">
+</head>
+<body>
+<div class="envoltura llaves-pagina">
+  <h1>Ruleta</h1>
+  <h2 class="s-titulo" id="titulo"></h2>
+  <p class="llave-info" id="info"></p>
+  <div id="resultado" aria-live="polite"></div>
+  <p class="llave-pie" id="pie"></p>
+</div>
+<script type="module">
+import { JUEGOS, htmlResultado, resumen } from "/torneos/sorteo/sorteo.js";
+import { crearRuleta } from "/torneos/sorteo/ruleta.js";
+
+const $ = (id) => document.getElementById(id);
+const hora = (v) => new Date(v).toLocaleTimeString("es-AR", { timeZone: "America/Argentina/Buenos_Aires", hour: "2-digit", minute: "2-digit", hour12: false });
+const espera = (ms) => new Promise((r) => setTimeout(r, ms));
+const sinMovimiento = matchMedia("(prefers-reduced-motion: reduce)").matches;
+let actual = null;
+let girando = false;
+let pendiente = null;
+let primera = true;
+
+// Muestra el sorteo de premios más reciente, de cualquier juego.
+function ultimoPremio(sorteos) {
+  return Object.entries(sorteos)
+    .filter(([, s]) => s.datos.modo === "ganadores")
+    .map(([juego, s]) => ({ juego, ...s }))
+    .sort((a, b) => new Date(b.actualizado) - new Date(a.actualizado))[0] ?? null;
+}
+
+function pintar(s, animar) {
+  if (girando) {
+    pendiente = { s, animar: animar || pendiente?.animar };
+    return;
+  }
+  if (!s) {
+    $("titulo").textContent = "";
+    $("info").textContent = "La ruleta aparece cuando publiques un sorteo de premios. Esta página se actualiza sola.";
+    $("resultado").innerHTML = "";
+    $("pie").textContent = "";
+    return;
+  }
+  $("titulo").textContent = s.datos.titulo;
+  $("info").textContent = resumen(s.datos);
+  $("resultado").innerHTML = `<div class="s-premios">
+    <div class="ruleta">
+      <div class="ruleta-rueda"><canvas id="rueda" aria-hidden="true"></canvas><span class="ruleta-flecha" aria-hidden="true"></span></div>
+      <p class="ruleta-nombre" id="rueda-nombre" aria-hidden="true"></p>
+      <button class="boton borde" type="button" id="repetir">Girar de nuevo</button>
+    </div>
+    <div>${htmlResultado(s.datos)}</div>
+  </div>`;
+  $("pie").textContent = `Sorteado a las ${hora(s.actualizado)}. La página se actualiza sola.`;
+
+  const d = s.datos;
+  const rueda = crearRuleta($("rueda"), $("rueda-nombre"));
+  const items = [...document.querySelectorAll(".s-ganadores li")];
+  const ganadores = d.resultado.ganadores;
+
+  function fijo() {
+    rueda.nombres(d.nombres);
+    rueda.apuntar(ganadores[0]);
+    items.forEach((li) => (li.hidden = false));
+  }
+
+  async function girar() {
+    if (girando || !ganadores.length) return;
+    girando = true;
+    $("repetir").disabled = true;
+    items.forEach((li) => (li.hidden = true));
+    let quedan = [...d.nombres];
+    const ms = ganadores.length > 3 ? 3500 : 6000;
+    for (const [i, g] of ganadores.entries()) {
+      rueda.nombres(quedan);
+      await rueda.girarA(g, ms);
+      items[i].hidden = false;
+      items[i].classList.add("recien");
+      await espera(1200);
+      quedan = quedan.filter((n) => n !== g);
+    }
+    rueda.nombres(d.nombres);
+    rueda.apuntar(ganadores[0]);
+    girando = false;
+    $("repetir").disabled = false;
+    if (pendiente) {
+      const p = pendiente;
+      pendiente = null;
+      pintar(p.s, p.animar);
+    }
+  }
+
+  $("repetir").addEventListener("click", girar);
+  if (animar && !sinMovimiento) girar();
+  else fijo();
+}
+
+async function cargar() {
+  try {
+    const r = await fetch("/api/sorteos", { cache: "no-store" });
+    if (!r.ok) throw new Error();
+    const s = ultimoPremio((await r.json()).sorteos);
+    const firma = s ? `${s.juego}|${s.actualizado}` : "";
+    if (!primera && firma === actual) return;
+    // Al abrir la página se muestra quieta; un sorteo nuevo hace girar la rueda.
+    const animar = !primera && Boolean(s);
+    primera = false;
+    actual = firma;
+    pintar(s, animar);
+  } catch {
+    if (primera) $("info").textContent = "No se pudo cargar la ruleta. Recargá la página en unos minutos.";
+  }
+}
+
+cargar();
+setInterval(cargar, 5000);
+</script>
+</body>
+</html>

@@ -221,3 +221,5 @@ input.marcador{display:block;width:100%;padding:6px 10px;background:var(--negro)
   .s-ganadores li.recien{animation:premio .6s ease-out}
   @keyframes premio{from{opacity:0;transform:scale(.92);background:var(--ascua)}}
 }
+
+.editor-controles[hidden]{display:none}
